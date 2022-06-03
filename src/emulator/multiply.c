@@ -8,11 +8,12 @@ short multiply(word *instruction, struct RegisterFile *registers, memory_t memor
         word *reg_ptrs[NUM_REGISTERS] = {rd, rn, rs, rm};
         for(int reg_index = 0; reg_index < NUM_REGISTERS; reg_index++) {
             int reg_loc = reg_locs[reg_index];
-            *reg_ptrs[reg_index] = registers->general_purpose[extract_bits(*instruction, reg_loc - REGISTER_ADDRESS_LENGTH, reg_loc)];
+            *reg_ptrs[reg_index] = registers->general_purpose[extract_bits(*instruction, reg_loc - REGISTER_ADDRESS_LENGTH + 1, reg_loc)];
         }
 
         short accumulate = extract_bits(*instruction, ACC_BIT, ACC_BIT);
         *rd = (*rm * *rs) + (accumulate ? *rn : 0);
+        registers->general_purpose[extract_bits(*instruction, RD_LOC - REGISTER_ADDRESS_LENGTH + 1, RD_LOC)] = *rd;
 
         short to_set = extract_bits(*instruction, SET_BIT, SET_BIT);
         if(to_set) {
