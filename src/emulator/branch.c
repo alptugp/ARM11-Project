@@ -1,6 +1,6 @@
 #include "branch.h"
 
-word branch(word *instruction, RegisterFile *registers, const memory_t memory) { 
+word branch(word *instruction, struct RegisterFile *registers, const memory_t memory) { 
     if (cond_check(*instruction, registers) == 1) {
         word shifted_offset = (extract_bits(*instruction, OFFSET_LSB, OFFSET_MSB)) <<= SHIFT_VALUE_OFFSET;
         offset_extend(shifted_offset, OFFSET_SIGN_BIT, OFFSET_SIGN_BIT);

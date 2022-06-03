@@ -5,6 +5,7 @@
 #include "data_processing.h"
 #include "single_data_transfer.h"
 #include "multiply.h"
+#include "branch.h"
 
 // implements the 3 stage pipeline 
 

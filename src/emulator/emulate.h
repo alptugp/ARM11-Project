@@ -2,6 +2,7 @@
 #include <stdio.h>
 
 
+#define MEMSIZE 65536
 #define NUM_GENERAL_PURPOSE_REGISTERS 13
 #define REGISTER_ADDRESS_LENGTH 4
 
@@ -16,7 +17,7 @@
 typedef uint32_t word;
 typedef int32_t signed_word;
 typedef uint8_t byte;
-typedef int8_t memory_t[];
+typedef char memory_t[];
 
 struct RegisterFile {
     word general_purpose[NUM_GENERAL_PURPOSE_REGISTERS];

@@ -13,7 +13,7 @@ if this is the case, close file and print error message. return out of the fn
 return the file
 */
 
-FILE *file_load(char *file_path, word mem_size) {
+char *file_load(char *file_path, word mem_size) {
     FILE *file;
     if (access(file_path, F_OK) == 0) {
         //open file in binary mode
