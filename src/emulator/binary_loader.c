@@ -14,11 +14,12 @@ return the file
 */
 
 FILE *file_load(char *file_path, word mem_size) {
+    FILE *file;
     if (access(file_path, F_OK) == 0) {
         //open file in binary mode
-        FILE *file = fopen(file_path, "rb");
+        file = fopen(file_path, "rb");
     } else {
-        printf("File doesn't exist!\n")
+        printf("File doesn't exist!\n");
         return NULL;
     }
 
@@ -31,7 +32,7 @@ FILE *file_load(char *file_path, word mem_size) {
     if (file_size <= mem_size) {
         return file;
     } else {
-        printf("Size of the file is too large.\n";)
+        printf("Size of the file is too large.\n");
 
         //closes file
         word closed = fclose(file);
@@ -42,7 +43,7 @@ FILE *file_load(char *file_path, word mem_size) {
     }
 
     int elems = 1;
-    FILE file_ptr = fopen(file_path, "rb");
+    FILE *file_ptr = fopen(file_path, "rb");
     fseek(file_ptr, 0, SEEK_END);
     file_size = ftell(file_ptr);
     rewind(file_ptr);
