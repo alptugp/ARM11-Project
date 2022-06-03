@@ -6,15 +6,7 @@
 #include "single_data_transfer.h"
 #include "multiply.h"
 
-
-
 // implements the 3 stage pipeline 
-
-/* TODO:
-- execute
-- maybe put all the instruction functions in a struct?
-- maybe put all the instruction function definitions in emulate.h?
-*/
 
 void pipeline(memory_t main_memory, struct RegisterFile *registers)   {
     const int bytes_per_instr = sizeof(word) / sizeof(*main_memory);
