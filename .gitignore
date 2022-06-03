@@ -18,11 +18,10 @@
 emulate
 assemble
 
-#ignore junk files from compiling Haskell code
-*.hi
+#ignore IDE files
+*.idea
+.idea/
 
-#ignore junk files from compiling Java code
-*.class
 
 #ignore other junk files
 *.backup
@@ -33,5 +32,4 @@ assemble
 *.nav
 *.toc
 *.DS_Store
-*.idea
 
