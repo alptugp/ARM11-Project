@@ -15,15 +15,17 @@ return the file
 
 FILE *file_load(char *file_path, word mem_size) {
     if (access(file_path, F_OK) == 0) {
+        //open file in binary mode
         FILE *file = fopen(file_path, "rb");
     } else {
         printf("File doesn't exist!\n")
         return NULL;
     }
 
-    //find size of file 
+    //jump to beginning of file
     fseek(file, 0, SEEK_SET);
     word file_size = (word) ftell(file);
+    //jump to end of file
     fseek(file, 0, SEEK_END);
 
     if (file_size <= mem_size) {
@@ -38,7 +40,20 @@ FILE *file_load(char *file_path, word mem_size) {
         }
         return NULL;
     }
-    return file;
+
+    int elems = 1;
+    FILE file_ptr = fopen(file_path, "rb");
+    fseek(file_ptr, 0, SEEK_END);
+    file_size = ftell(file_ptr);
+    rewind(file_ptr);
+
+    //ensures buffer, which holds the array of bytes, has enough memory for the file
+    char *buffer = (char *)malloc(sizeof(char) * file_size);
+    fread(buffer, file_size, elems, file_ptr);
+    fclose(file_ptr);
+
+    //buffer now has array of bytes holding the file's contents
+
 }
 
 
