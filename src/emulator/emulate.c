@@ -30,17 +30,6 @@ void write_bits(word *value, unsigned int begin, unsigned int end, word replacem
     *value |= (replacement_bits << begin);
 }
 
-void write_bits(word *value, unsigned int begin, unsigned int end, word replacement_bits) {
-    validate_begin_end(begin, end);
-    // Check replacment only has 1s up to bit at end minus begin
-    assert(!(replacement_bits >> (end - begin)));
-    
-    // Mask is 0s in replacement region, 1s everywhere else
-    word mask = ((1 << begin) - 1) | (~((1 << (end + 1) - 1)));
-    *value &= mask;
-    *value |= (replacement_bits << begin);
-}
-
 // Returns 1 if the conditiion required by the decoded instruction is met by the CPSR state.
 // Returns 0 otherwise.
 short cond_check(const word instruction, struct RegisterFile *const registers) {
