@@ -3,7 +3,6 @@
 
 #define ACC_BIT 21
 #define SET_BIT 20
-#define REGISTER_ADDRESS_LENGTH 3
 #define NUM_REGISTERS 4
 #define RES_SIGN_BIT 31
 
