@@ -55,5 +55,3 @@ FILE *file_load(char *file_path, word mem_size) {
     //buffer now has array of bytes holding the file's contents
 
 }
-
-

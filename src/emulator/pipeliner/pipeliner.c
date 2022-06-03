@@ -6,30 +6,30 @@
 #include "single_data_transfer.h"
 #include "multiply.h"
 
-
-
 // implements the 3 stage pipeline 
 
-/* TODO:
-- execute
-- maybe put all the instruction functions in a struct?
-- maybe put all the instruction function definitions in emulate.h?
-*/
-
-void pipeline(memory_t main_memory, struct RegisterFile registers)   {
+void pipeline(memory_t main_memory, struct RegisterFile *registers)   {
     const int bytes_per_instr = sizeof(word) / sizeof(*main_memory);
-    instruction_ptr instr_to_execute = NULL;
-    word fetched = 0;
-    int num_cycles = 0;
+    instruction_ptr instr_func = NULL;
+    word instr_to_exec;
+    word fetched;
+    int num_cycles;
     do {
         if(num_cycles >= 2) {
-            // execute and break if necessary
+            // Execute
+            short should_terminate = (*instr_func)(&instr_to_exec, registers, main_memory);
+            if(should_terminate) {
+                break;
+            }
         }
         if(num_cycles >= 1) {
-            instr_to_execute = decode(fetched);
+            // Decode
+            instr_func = decode(fetched);
+            instr_to_exec = fetched;
         }
-        fetched = main_memory[registers.program_counter];
-        registers.program_counter += bytes_per_instr;
+        // Fetch
+        fetched = main_memory[registers->program_counter];
+        registers->program_counter += bytes_per_instr;
         num_cycles++;
     } while(1);
 }
@@ -53,29 +53,3 @@ static instruction_ptr decode(const word instruction) {
     }
     return &data_processing;
 }
-
-/*
-void execute(word instruction) {
-    word cond_code =
-    switch(instructionCode) {
-        case STOP:
-            //stop
-            //output the state of the register
-            break;
-        case MULTIPLY:
-            multiply(instruction);
-            break;
-        case DATA_PROCESSING:
-            process_data(instruction);
-            break;
-        case SINGLE_DATA_TRANSFER:
-            single_data_transfer(instruction);
-            break;
-        case BRANCH:
-            branch(instruction);
-            break;
-        default:
-            fprintf(stderr, "Invalid instruction\n");
-            break;
-    }
-*/

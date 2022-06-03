@@ -3,6 +3,7 @@
 
 
 #define NUM_GENERAL_PURPOSE_REGISTERS 13
+#define REGISTER_ADDRESS_LENGTH 4
 
 #define COND_MSB 31
 #define COND_LSB 28
@@ -13,6 +14,7 @@
 
 
 typedef uint32_t word;
+typedef int32_t signed_word;
 typedef uint8_t byte;
 typedef int8_t memory_t[];
 
@@ -45,6 +47,8 @@ enum cond_code{
     LE = 13, // less than or equal
     AL = 14 // always
 };
+
+word extract_bits_64bit(const long value, unsigned int begin, unsigned int end);
 
 word extract_bits(const word value, unsigned int begin, unsigned int end);
 
