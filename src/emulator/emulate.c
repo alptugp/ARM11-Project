@@ -1,20 +1,26 @@
 #include <assert.h>
 #include "emulate.h"
 
-static void validate_begin_end(unsigned int begin, unsigned int end) {
-    assert(end <= 31);
+word extract_bits_64bit(const long value, unsigned int begin, unsigned int end) {
+    validate_begin_end(begin, end, 64);
+    long mask = (1 << (end - begin)) - 1;
+    return (value >> begin) & mask;
+}
+
+static void validate_begin_end(unsigned int begin, unsigned int end, unsigned int max_end) {
+    assert(end <= max_end);
     assert(begin <= end);
 }
 
 // Extracts bits from a word in the range [begin, end]
 word extract_bits(const word value, unsigned int begin, unsigned int end) {
-    validate_begin_end(begin, end);
-    word mask = (1 << (end - begin)) - 1;
-    return (value >> begin) & mask; 
+    validate_begin_end(begin, end, 32);
+    long long_res = extract_bits_64bit((long) value, begin, end);
+    return (word) long_res; 
 }
 
 void write_bits(word *value, unsigned int begin, unsigned int end, word replacement_bits) {
-    validate_begin_end(begin, end);
+    validate_begin_end(begin, end, 32);
     // Check replacment only has 1s up to bit at end minus begin
     assert(!(replacement_bits >> (end - begin)));
     

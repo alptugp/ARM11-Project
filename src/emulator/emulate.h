@@ -48,6 +48,8 @@ enum cond_code{
     AL = 14 // always
 };
 
+word extract_bits_64bit(const long value, unsigned int begin, unsigned int end);
+
 word extract_bits(const word value, unsigned int begin, unsigned int end);
 
 void write_bits(word *value, unsigned int begin, unsigned int end, word replacement_bits);
