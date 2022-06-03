@@ -11,15 +11,13 @@
 // implements the 3 stage pipeline 
 
 /* TODO:
-- make sure all functions in .h
-- decode
 - execute
-- fetch
 - maybe put all the instruction functions in a struct?
 - maybe put all the instruction function definitions in emulate.h?
 */
 
 void pipeline(memory_t main_memory, struct RegisterFile registers)   {
+    const int bytes_per_instr = sizeof(word) / sizeof(*main_memory);
     instruction_ptr instr_to_execute = NULL;
     word fetched = 0;
     int num_cycles = 0;
@@ -31,39 +29,30 @@ void pipeline(memory_t main_memory, struct RegisterFile registers)   {
             instr_to_execute = decode(fetched);
         }
         fetched = main_memory[registers.program_counter];
-        registers.program_counter += 4;
+        registers.program_counter += bytes_per_instr;
         num_cycles++;
     } while(1);
 }
 
-// need to change output of decode
-// need to define functions later
-
-// define magic numbers in pipeline.h later 
 static instruction_ptr decode(const word instruction) {
-    word bits27_26 = extract_bits(instruction, 26, 27);
-    if(bits27_26 == 1) { // compare to 01
-        // RETURN SINGLE DATA TRANSFER
-        return &single_data_transfer;
-    }
-    if(bits27_26 == 2) { // compare to 10
-        return &branch;
-    }
-    if(extract_bits(instruction, 25, 25) == 1) { // compare to 1
-        // RETURN DATA PROCESSING
-        return &data_processing;
-
-    }
-    if(extract_bits(instruction, 4, 7) == 3) { // compare to 
-        return &multiply;
-    }
-    if(instruction == 0) {
+    word opcode = extract_bits(instruction, OPCODE_LSB, OPCODE_MSB);
+    if(instruction == TERMINATE_VALUE) {
         return &terminate;
     }
-    else return &data_processing;
+    if(opcode == SINGLE_DATA_TRANSFER_OPCODE) {
+        return &single_data_transfer;
+    }
+    if(opcode == BRANCH_OPCODE) {
+        return &branch;
+    }
+    if(extract_bits(instruction, DATA_PROC_I, DATA_PROC_I) == 1) {
+        return &data_processing;
+    }
+    if(extract_bits(instruction, MULTIPLY_OPCODE_LSB, MULTIPLY_OPCODE_MSB) == MULTIPLY_OPCODE) { // compare to 
+        return &multiply;
+    }
+    return &data_processing;
 }
-
-
 
 /*
 void execute(word instruction) {
