@@ -1,9 +1,27 @@
+#include <assert.h>
 #include "emulate.h"
 
+static void validate_begin_end(unsigned int begin, unsigned int end) {
+    assert(end <= 31);
+    assert(begin <= end);
+}
+
 // Extracts bits from a word in the range [begin, end]
-word extract_bits(const word value, int begin, int end) {
+word extract_bits(const word value, unsigned int begin, unsigned int end) {
+    validate_begin_end(begin, end);
     word mask = (1 << (end - begin)) - 1;
     return (value >> begin) & mask; 
+}
+
+void write_bits(word *value, unsigned int begin, unsigned int end, word replacement_bits) {
+    validate_begin_end(begin, end);
+    // Check replacment only has 1s up to bit at end minus begin
+    assert(!(replacement_bits >> (end - begin)));
+    
+    // Mask is 0s in replacement region, 1s everywhere else
+    word mask = ((1 << begin) - 1) | (~((1 << (end + 1) - 1)));
+    *value &= mask;
+    *value |= (replacement_bits << begin);
 }
 
 // Returns 1 if the conditiion required by the decoded instruction is met by the CPSR state.
@@ -27,7 +45,7 @@ short cond_check(const word instruction, struct RegisterFile *const registers) {
 }
 
 void clear_registers(struct RegisterFile *registers) {
-    for (int i = 0; i < GENERAL_PURPOSE_REGISTERS; i++) {
+    for (int i = 0; i < NUM_GENERAL_PURPOSE_REGISTERS; i++) {
         registers->general_purpose[i] = 0;
     }
     registers->lr = 0;
