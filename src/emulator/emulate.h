@@ -1,7 +1,6 @@
 #include <stdint.h>
 #include <stdio.h>
 
-
 #define MEMSIZE 65536
 #define NUM_GENERAL_PURPOSE_REGISTERS 13
 #define REGISTER_ADDRESS_LENGTH 4
@@ -31,7 +30,7 @@ typedef short (*instruction_ptr)(word*, struct RegisterFile*, memory_t);
 
 // Condition codes for ARM instructions multiply, data processing, and single data transfer, and branch.
 // added some extra codes beyond the spec, can implement/remove later depending on time. 
-enum cond_code{
+enum cond_code {
     EQ = 0, // equal
     NE = 1, // not equal
     // CS = 2, // carry set

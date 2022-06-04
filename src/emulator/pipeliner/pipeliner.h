@@ -1,5 +1,5 @@
 #include <stdint.h>
-#include "emulate.h"
+#include "../emulate.h"
 
 
 #define OPCODE_MSB 27
@@ -9,9 +9,8 @@
 #define DATA_PROC_I 25
 #define MULTIPLY_OPCODE_MSB 7
 #define MULTIPLY_OPCODE_LSB 4
-#define MULTIPLY_OPCODE 3 // 11
+#define MULTIPLY_OPCODE 9 // 1001
 #define TERMINATE_VALUE 0
-
 
 void pipeline(memory_t main_memory, struct RegisterFile *registers);
 static instruction_ptr decode(word instruction);

@@ -1,11 +1,11 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "pipeliner.h"
-#include "terminate.h"
-#include "data_processing.h"
-#include "single_data_transfer.h"
-#include "multiply.h"
-#include "branch.h"
+#include "../terminate.h"
+#include "../data_processing.h"
+#include "../single_data_transfer.h"
+#include "../multiply.h"
+#include "../branch.h"
 
 // implements the 3 stage pipeline 
 

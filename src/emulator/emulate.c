@@ -1,6 +1,7 @@
 #include <assert.h>
 #include "emulate.h"
 
+// Extract bits from a 64 bit number in the range [begin, end]
 word extract_bits_64bit(const long value, unsigned int begin, unsigned int end) {
     validate_begin_end(begin, end, 64);
     long mask = (1 << (end - begin)) - 1;
