@@ -1,3 +1,6 @@
+#ifndef EMULATE
+#define EMULATE
+
 #include "emulate.h"
 
 #define OPCODE_LSB 21
@@ -46,3 +49,5 @@ typedef enum opcode_t {
 enum shift_type { LSL, LSR, ASR, ROR };
 
 short data_processing(word *instruction, struct RegisterFile *registers, memory_t memory);
+
+#endif

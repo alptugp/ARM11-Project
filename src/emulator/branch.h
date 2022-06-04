@@ -1,5 +1,5 @@
 #ifndef BRANCH_H
-/*#define BRANCH_H*/
+#define BRANCH_H
 
 #include <stdint.h>
 #include "emulate.h"

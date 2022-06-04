@@ -1,3 +1,6 @@
+#ifndef EMULATE
+#define EMULATE
+
 #include <stdint.h>
 #include <stdio.h>
 
@@ -57,3 +60,5 @@ void write_bits(word *value, unsigned int begin, unsigned int end, word replacem
 short cond_check(const word instruction, struct RegisterFile *const registers);
 
 void clear_registers(struct RegisterFile *registers);
+
+#endif

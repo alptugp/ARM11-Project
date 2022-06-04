@@ -1,4 +1,5 @@
-#define BINARY_LOADER.H
+#ifndef BINARY_LOADER
+#define BINARY_LOADER
 
 #include "emulate.h"
 #include <stdio.h>
@@ -6,4 +7,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-FILE *file_load(char *file_path, word mem_size);
+char *file_load(char *file_path, word mem_size);
+
+#endif

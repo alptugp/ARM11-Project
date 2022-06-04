@@ -1,3 +1,6 @@
+#ifndef SINGLE_DATA_TRANSFER
+#define SINGLE_DATA_TRANSFER
+
 #include "emulate.h"
 
 #define OFFSET_LS_BIT 0
@@ -12,3 +15,5 @@
 #define IMM_BIT 25
 
 short single_data_transfer(word *instruction, struct RegisterFile *registers, memory_t memory);
+
+#endif
