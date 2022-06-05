@@ -19,7 +19,7 @@
 typedef uint32_t word;
 typedef int32_t signed_word;
 typedef uint8_t byte;
-typedef char memory_t[];
+typedef char memory_t[MEMSIZE];
 
 struct RegisterFile {
     word general_purpose[NUM_GENERAL_PURPOSE_REGISTERS];
