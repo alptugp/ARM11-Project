@@ -15,7 +15,6 @@
 #define MULTIPLY_OPCODE 9 // 1001
 #define TERMINATE_VALUE 0
 
-static instruction_ptr decode(word instruction);
 void pipeline(memory_t main_memory, struct RegisterFile *registers);
 
 #endif
