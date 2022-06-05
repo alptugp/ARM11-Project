@@ -13,6 +13,6 @@ clean:
 	rm -f $(LIB)
 	rm -f $(LIBOBJS)
 
-pipeliner.o: pipeliner.h ../terminate.h ../data_processing.h ../single_data_transfer.h ../multiply.h ../branch.h
+pipeliner.o: pipeliner.h ../terminate.h ../data_processing.h ../single_data_transfer.h ../multiply.h ../branch.h ../emulate.h
 
 .PHONY: all clean

@@ -1,5 +1,3 @@
-#ifndef BINARY_LOADER
-#define BINARY_LOADER
 #include "binary_loader.h"
 #include <stdio.h>
 #include <unistd.h>
@@ -60,5 +58,3 @@ char *file_load(char *file_path, word mem_size) {
     //buffer now has array of bytes holding the file's contents
 
 }
-
-#endif

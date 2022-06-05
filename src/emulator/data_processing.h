@@ -1,5 +1,5 @@
-#ifndef EMULATE
-#define EMULATE
+#ifndef DATA_PROCESSING
+#define DATA_PROCESSING
 
 #include "emulate.h"
 
