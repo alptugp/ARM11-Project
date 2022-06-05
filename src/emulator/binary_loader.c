@@ -1,6 +1,8 @@
 #include "binary_loader.h"
 #include <stdio.h>
 #include <unistd.h>
+#include <assert.h>
+#include <string.h>
 
 /*
 need to check if file exists
@@ -15,14 +17,14 @@ if this is the case, close file and print error message. return out of the fn
 return the file
 */
 
-char *file_load(char *file_path, word mem_size) {
+void file_load(char *file_path, word mem_size, memory_t memory) {
     FILE *file;
     if (access(file_path, F_OK) == 0) {
         //open file in binary mode
         file = fopen(file_path, "rb");
     } else {
         printf("File doesn't exist!\n");
-        return NULL;
+        assert(0);
     }
 
     //jump to beginning of file
@@ -31,9 +33,7 @@ char *file_load(char *file_path, word mem_size) {
     //jump to end of file
     fseek(file, 0, SEEK_END);
 
-    if (file_size <= mem_size) {
-        return file;
-    } else {
+    if (file_size > mem_size) {
         printf("Size of the file is too large.\n");
 
         //closes file
@@ -41,7 +41,7 @@ char *file_load(char *file_path, word mem_size) {
         while (closed != 0) {
             closed = fclose(file);
         }
-        return NULL;
+        assert(0);
     }
 
     int elems = 1;
@@ -57,4 +57,5 @@ char *file_load(char *file_path, word mem_size) {
 
     //buffer now has array of bytes holding the file's contents
 
+    strcpy(memory, buffer);
 }

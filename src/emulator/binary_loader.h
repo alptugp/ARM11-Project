@@ -7,6 +7,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-char *file_load(char *file_path, word mem_size);
+void file_load(char *file_path, word mem_size, memory_t memory);
 
 #endif
