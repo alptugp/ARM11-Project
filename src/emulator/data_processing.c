@@ -5,6 +5,47 @@ static void calc_result_and_cout(long res_64bit, word *result, short *cout) {
     *cout = extract_bits_64bit(res_64bit, sizeof(word) + 1, sizeof(word) + 1);
 }
 
+static word load_immediate_value(word *instruction, short *cout) {
+    word unrotated = extract_bits(*instruction, OPERAND2_IMM_LSB, OPERAND2_IMM_MSB);
+    word rotation = 2 * extract_bits(*instruction, ROTATE_LSB, ROTATE_MSB);
+    return (unrotated <<= rotation);
+}
+
+static word load_register_value(word *instruction, struct RegisterFile *registers, short *cout) {
+    word value = registers->general_purpose[extract_bits(*instruction, RM_LSB, RM_MSB)];
+    word shift_amount;
+    if(extract_bits(*instruction, SHIFTER_BIT, SHIFTER_BIT)) {
+        shift_amount = registers->general_purpose[extract_bits(*instruction, SHIFT_REGISTER_LSB, SHIFT_REGISTER_MSB)];
+    }
+    else {
+        shift_amount = extract_bits(*instruction, SHIFT_INTEGER_LSB, SHIFT_INTEGER_MSB);
+    }
+    word shift_type = extract_bits(*instruction, SHIFT_TYPE_LSB, SHIFT_TYPE_MSB);
+    word old_value = value;
+    unsigned int carry_bit_location;
+    switch(shift_type) {
+        case LSL:
+            carry_bit_location = sizeof(word) - shift_amount;
+            value <<= shift_amount;
+        case LSR:
+            carry_bit_location = shift_amount - 1;
+            value >>= shift_amount;
+        case ASR:
+            carry_bit_location = shift_amount - 1;
+            signed_word signed_value = (signed_word) value;
+            value = (word) (signed_value >>= shift_amount);
+        case ROR:
+            carry_bit_location = shift_amount - 1;
+            value = (value >> shift_amount) | (value << (sizeof(word) - shift_amount));
+        default:
+            printf("Invalid shift type: %x", shift_type);
+            assert(0);
+    }
+    *cout = (shift_amount != 0) ? extract_bits(old_value, carry_bit_location, carry_bit_location) 
+        : 0;
+    return value;
+}
+
 short data_processing(word *instruction, struct RegisterFile *registers, memory_t memory) {
     if (cond_check(*instruction, registers) != 0) {
         word dest_reg = extract_bits(*instruction, DEST_REG_LSB, REGISTER_ADDRESS_LENGTH + DEST_REG_LSB);
@@ -72,45 +113,4 @@ short data_processing(word *instruction, struct RegisterFile *registers, memory_
         }
     }
     return 0;
-}
-
-static word load_immediate_value(word *instruction, short *cout) {
-    word unrotated = extract_bits(*instruction, OPERAND2_IMM_LSB, OPERAND2_IMM_MSB);
-    word rotation = 2 * extract_bits(*instruction, ROTATE_LSB, ROTATE_MSB);
-    return (unrotated <<= rotation);
-}
-
-static word load_register_value(word *instruction, struct RegisterFile *registers, short *cout) {
-    word value = registers->general_purpose[extract_bits(*instruction, RM_LSB, RM_MSB)];
-    word shift_amount;
-    if(extract_bits(*instruction, SHIFTER_BIT, SHIFTER_BIT)) {
-        shift_amount = registers->general_purpose[extract_bits(*instruction, SHIFT_REGISTER_LSB, SHIFT_REGISTER_MSB)];
-    }
-    else {
-        shift_amount = extract_bits(*instruction, SHIFT_INTEGER_LSB, SHIFT_INTEGER_MSB);
-    }
-    word shift_type = extract_bits(*instruction, SHIFT_TYPE_LSB, SHIFT_TYPE_MSB);
-    word old_value = value;
-    unsigned int carry_bit_location;
-    switch(shift_type) {
-        case LSL:
-            carry_bit_location = sizeof(word) - shift_amount;
-            value <<= shift_amount;
-        case LSR:
-            carry_bit_location = shift_amount - 1;
-            value >>= shift_amount;
-        case ASR:
-            carry_bit_location = shift_amount - 1;
-            signed_word signed_value = (signed_word) value;
-            value = (word) (signed_value >>= shift_amount);
-        case ROR:
-            carry_bit_location = shift_amount - 1;
-            value = (value >> shift_amount) | (value << (sizeof(word) - shift_amount));
-        default:
-            printf("Invalid shift type: %x", shift_type);
-            assert(0);
-    }
-    *cout = (shift_amount != 0) ? extract_bits(old_value, carry_bit_location, carry_bit_location) 
-        : 0;
-    return value;
 }

@@ -7,7 +7,25 @@
 #include "../multiply.h"
 #include "../branch.h"
 
-// implements the 3 stage pipeline 
+static instruction_ptr decode(const word instruction) {
+    word opcode = extract_bits(instruction, OPCODE_LSB, OPCODE_MSB);
+    if(instruction == TERMINATE_VALUE) {
+        return &terminate;
+    }
+    if(opcode == SINGLE_DATA_TRANSFER_OPCODE) {
+        return &single_data_transfer;
+    }
+    if(opcode == BRANCH_OPCODE) {
+        return &branch;
+    }
+    if(extract_bits(instruction, DATA_PROC_I, DATA_PROC_I) == 1) {
+        return &data_processing;
+    }
+    if(extract_bits(instruction, MULTIPLY_OPCODE_LSB, MULTIPLY_OPCODE_MSB) == MULTIPLY_OPCODE) { // compare to 
+        return &multiply;
+    }
+    return &data_processing;
+}
 
 void pipeline(memory_t main_memory, struct RegisterFile *registers)   {
     const int bytes_per_instr = sizeof(word) / sizeof(*main_memory);
@@ -33,24 +51,4 @@ void pipeline(memory_t main_memory, struct RegisterFile *registers)   {
         registers->program_counter += bytes_per_instr;
         num_cycles++;
     } while(1);
-}
-
-static instruction_ptr decode(const word instruction) {
-    word opcode = extract_bits(instruction, OPCODE_LSB, OPCODE_MSB);
-    if(instruction == TERMINATE_VALUE) {
-        return &terminate;
-    }
-    if(opcode == SINGLE_DATA_TRANSFER_OPCODE) {
-        return &single_data_transfer;
-    }
-    if(opcode == BRANCH_OPCODE) {
-        return &branch;
-    }
-    if(extract_bits(instruction, DATA_PROC_I, DATA_PROC_I) == 1) {
-        return &data_processing;
-    }
-    if(extract_bits(instruction, MULTIPLY_OPCODE_LSB, MULTIPLY_OPCODE_MSB) == MULTIPLY_OPCODE) { // compare to 
-        return &multiply;
-    }
-    return &data_processing;
 }

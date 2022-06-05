@@ -1,21 +1,22 @@
 #include <assert.h>
 #include "emulate.h"
 
-// Extract bits from a 64 bit number in the range [begin, end]
-word extract_bits_64bit(const long value, unsigned int begin, unsigned int end) {
-    validate_begin_end(begin, end, 64);
-    long mask = (1 << (end - begin)) - 1;
-    return (value >> begin) & mask;
-}
-
 static void validate_begin_end(unsigned int begin, unsigned int end, unsigned int max_end) {
     assert(end <= max_end);
     assert(begin <= end);
 }
 
+// Extract bits from a 64 bit number in the range [begin, end]
+word extract_bits_64bit(const long value, unsigned int begin, unsigned int end) {
+    validate_begin_end(begin, end, (unsigned int) 64);
+    long mask = (1 << (end - begin)) - 1;
+    return (value >> begin) & mask;
+}
+
+
 // Extracts bits from a word in the range [begin, end]
 word extract_bits(const word value, unsigned int begin, unsigned int end) {
-    validate_begin_end(begin, end, 32);
+    validate_begin_end(begin, end, (unsigned int) 32);
     long long_res = extract_bits_64bit((long) value, begin, end);
     return (word) long_res; 
 }
