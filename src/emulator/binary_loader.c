@@ -1,6 +1,8 @@
 #ifndef BINARY_LOADER
 #define BINARY_LOADER
 #include "binary_loader.h"
+#include <stdio.h>
+#include <unistd.h>
 
 /*
 need to check if file exists
