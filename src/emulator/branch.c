@@ -1,6 +1,7 @@
 #include "branch.h"
+#include <assert.h>
 
-word branch(word *instruction, struct RegisterFile *registers, const memory_t memory) {
+short branch(word *instruction, struct RegisterFile *registers, memory_t memory) {
     if (cond_check(*instruction, registers) == 1) {
         signed_word shifted_offset = ((signed_word) (extract_bits(*instruction, OFFSET_LSB, OFFSET_MSB))) << SHIFT_VALUE_OFFSET;
         signed_word pc_value = shifted_offset + (signed_word) registers->program_counter;

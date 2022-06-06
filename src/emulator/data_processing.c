@@ -1,4 +1,5 @@
 #include "data_processing.h"
+#include <assert.h>
 
 static void calc_result_and_cout(long res_64bit, word *result, short *cout) {
     *result = (word) res_64bit;
@@ -57,7 +58,7 @@ short data_processing(word *instruction, struct RegisterFile *registers, memory_
         // Next line will set cout to the shifter carry out
         word operand2 = (immediate_operand == 1) ? load_immediate_value(instruction, cout) : load_register_value(instruction, registers, cout);
 
-        word opcode = extract_bits(*instruction, OPCODE_LSB, OPCODE_MSB);
+        word opcode = extract_bits(*instruction, MNEMONIC_LSB, MNEMONIC_MSB);
         switch (opcode) {
             // ARITHMETIC OPERATIONS
             case CMP:

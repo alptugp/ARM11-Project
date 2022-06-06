@@ -15,7 +15,7 @@ short single_data_transfer(word *instruction, struct RegisterFile *registers, me
     word u = extract_bits(*instruction, U_BIT, U_BIT);
     word l = extract_bits(*instruction, L_BIT, L_BIT);
     
-    if(cond_check(instruction, registers)) {
+    if(cond_check(*instruction, registers)) {
         word offset_value = offset ? imm : registers->general_purpose[rn];
         if(p) {
             offset_value = offset_value << 2;
@@ -26,9 +26,9 @@ short single_data_transfer(word *instruction, struct RegisterFile *registers, me
             offset_value = registers->general_purpose[rn] - offset_value;
         }
         if(l) {
-            registers->general_purpose[rd] = read_word(offset_value);
+            registers->general_purpose[rd] = memory[offset_value];
         } else {
-            write_word(offset_value, registers->general_purpose[rd]);
+            memory[offset_value] = registers->general_purpose[rd];
         }
     }
     return 0;

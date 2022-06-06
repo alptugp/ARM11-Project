@@ -7,6 +7,15 @@
 #include "../multiply.h"
 #include "../branch.h"
 
+// Use of function pointers requires that .c instruction files also included
+// TODO: when instructions are moved to separate subdirectory, find way to...
+// ...include ALL instruction programs automatically
+#include "../terminate.c"
+#include "../data_processing.c"
+#include "../single_data_transfer.c"
+#include "../multiply.c"
+#include "../branch.c"
+
 static instruction_ptr decode(const word instruction) {
     word opcode = extract_bits(instruction, OPCODE_LSB, OPCODE_MSB);
     if(instruction == TERMINATE_VALUE) {

@@ -17,8 +17,8 @@ short multiply(word *instruction, struct RegisterFile *registers, memory_t memor
 
         short to_set = extract_bits(*instruction, SET_BIT, SET_BIT);
         if(to_set) {
-            write_bits(registers->cpsr, N_FLAG_CPSR, N_FLAG_CPSR, extract_bits(*rd, RES_SIGN_BIT, RES_SIGN_BIT));
-            write_bits(registers->cpsr, Z_FLAG_CPSR, Z_FLAG_CPSR, *rd == 0);
+            write_bits(&registers->cpsr, N_FLAG_CPSR, N_FLAG_CPSR, extract_bits(*rd, RES_SIGN_BIT, RES_SIGN_BIT));
+            write_bits(&registers->cpsr, Z_FLAG_CPSR, Z_FLAG_CPSR, *rd == 0);
         }
     }
     return 0;

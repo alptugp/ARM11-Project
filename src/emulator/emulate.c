@@ -27,7 +27,7 @@ void write_bits(word *value, unsigned int begin, unsigned int end, word replacem
     assert(!(replacement_bits >> (end - begin)));
     
     // Mask is 0s in replacement region, 1s everywhere else
-    word mask = ((1 << begin) - 1) | (~((1 << (end + 1) - 1)));
+    word mask = ((1 << begin) - 1) | (~(((1 << (end + 1)) - 1)));
     *value &= mask;
     *value |= (replacement_bits << begin);
 }
@@ -40,8 +40,8 @@ short cond_check(const word instruction, struct RegisterFile *const registers) {
     const word n_flag = extract_bits(registers->cpsr, N_FLAG_CPSR, N_FLAG_CPSR);
     const word v_flag = extract_bits(registers->cpsr, V_FLAG_CPSR, V_FLAG_CPSR);
 
-    const z_clear = z_flag == 0; 
-    const n_equals_v = n_flag == v_flag;
+    const short z_clear = z_flag == 0; 
+    const short n_equals_v = n_flag == v_flag;
 
     return (cond == EQ && !z_clear)
         || (cond == NE && z_clear)

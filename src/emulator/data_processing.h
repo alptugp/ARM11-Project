@@ -3,10 +3,8 @@
 
 #include "emulate.h"
 
-#define OPCODE_LSB 21
-#define OPCODE_MSB 24
-//#define OPERAND2_START 0
-//#define OPERAND2_SIZE 12
+#define MNEMONIC_LSB 21
+#define MNEMONIC_MSB 24
 #define DEST_REG_LSB 12
 #define FIRST_OPERAND_LSB 16
 #define IMMEDIATE_OPERAND_BIT 25
@@ -27,7 +25,7 @@
 #define SHIFT_INTEGER_MSB 11
 #define SIGN_BIT 31
 
-typedef enum opcode_t {
+typedef enum {
     AND = 0,
     EOR = 1,
     SUB = 2,
@@ -44,9 +42,9 @@ typedef enum opcode_t {
     MOV = 13,
     // bic = 14,
     // mvn = 15
-};
+} opcode_t;
 
-enum shift_type { LSL, LSR, ASR, ROR };
+enum shift_types { LSL, LSR, ASR, ROR };
 
 short data_processing(word *instruction, struct RegisterFile *registers, memory_t memory);
 

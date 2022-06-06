@@ -10,6 +10,6 @@
 #define SHIFT_VALUE_OFFSET 2
 #define SIGN_BIT_OFFSET 23
 
-word branch(word *instruction, struct RegisterFile *registers, const memory_t memory);
+short branch(word *instruction, struct RegisterFile *registers, memory_t memory);
 
 #endif
