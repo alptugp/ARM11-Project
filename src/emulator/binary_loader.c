@@ -53,12 +53,15 @@ int file_load(const char *file_path, word mem_size, memory_t memory) {
     //ensures buffer, which holds the array of bytes, has enough memory for the file
     const int bytes_in_file = sizeof(char) * file_size;
     char *buffer = (char *)malloc(bytes_in_file);
+    assert(buffer);
     fread(buffer, file_size, elems, file_ptr);
     fclose(file_ptr);
 
     //buffer now has array of bytes holding the file's contents
 
     strcpy(memory, buffer);
+    
+    free(buffer);
 
     return bytes_in_file / (sizeof(word) / sizeof(char));
 }
