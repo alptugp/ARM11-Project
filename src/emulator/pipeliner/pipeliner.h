@@ -15,6 +15,6 @@
 #define MULTIPLY_OPCODE 9 // 1001
 #define TERMINATE_VALUE 0
 
-void pipeline(memory_t main_memory, struct RegisterFile *registers);
+void pipeline(memory_t main_memory, struct RegisterFile *registers, int num_instructions);
 
 #endif

@@ -1,5 +1,6 @@
 CC = gcc
-CCFLAGS = -g -Wall -pedantic -std=c99 # -fsanitize=undefined
+CCFLAGS = -g -Wall -pedantic -std=c99 -fsanitize=undefined
+LDFLAGS = -fsanitize=undefined
 LIB = libpipeliner.a
 LIBOBJS = pipeliner.o
 BUILD = $(LIB)

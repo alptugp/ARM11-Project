@@ -1,5 +1,6 @@
 CC = gcc
-CFLAGS = -g -Wall -pedantic -std=c99 -Ipipeliner # -fsanitize=undefined
+CFLAGS = -g -Wall -pedantic -std=c99 -Ipipeliner -fsanitize=undefined
+LDFLAGS = -fsanitize=undefined
 LDLIBS = -Lpipeliner -lpipeliner
 BUILD = libs emulate
 

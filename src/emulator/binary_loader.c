@@ -17,7 +17,7 @@ if this is the case, close file and print error message. return out of the fn
 return the file
 */
 
-void file_load(char *file_path, word mem_size, memory_t memory) {
+int file_load(const char *file_path, word mem_size, memory_t memory) {
     FILE *file;
     if (access(file_path, F_OK) == 0) {
         //open file in binary mode
@@ -51,11 +51,14 @@ void file_load(char *file_path, word mem_size, memory_t memory) {
     rewind(file_ptr);
 
     //ensures buffer, which holds the array of bytes, has enough memory for the file
-    char *buffer = (char *)malloc(sizeof(char) * file_size);
+    const int bytes_in_file = sizeof(char) * file_size;
+    char *buffer = (char *)malloc(bytes_in_file);
     fread(buffer, file_size, elems, file_ptr);
     fclose(file_ptr);
 
     //buffer now has array of bytes holding the file's contents
 
     strcpy(memory, buffer);
+
+    return bytes_in_file / (sizeof(word) / sizeof(char));
 }

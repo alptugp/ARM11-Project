@@ -3,10 +3,11 @@
 #include "emulate.h"
 
 int main(int argc, char *argv[]) {
-    char *filename = argv[0];
+    const char *filename = argv[0];
     struct RegisterFile registers;
+    clear_registers(&registers);
     memory_t memory;
-    file_load(filename, MEMSIZE, memory);
-    pipeline(memory, &registers);
+    int num_instructions = file_load(filename, MEMSIZE, memory);
+    pipeline(memory, &registers, num_instructions);
     return 0;
 }

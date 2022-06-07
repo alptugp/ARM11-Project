@@ -36,12 +36,12 @@ static instruction_ptr decode(const word instruction) {
     return &data_processing;
 }
 
-void pipeline(memory_t main_memory, struct RegisterFile *registers)   {
-    const int bytes_per_instr = sizeof(word) / sizeof(*main_memory);
+void pipeline(memory_t main_memory, struct RegisterFile *registers, int num_instructions)   {
+    const int bytes_per_instr = sizeof(word) / MEMSIZE;
     instruction_ptr instr_func = NULL;
     word instr_to_exec;
     word fetched;
-    int num_cycles;
+    int num_cycles = 0;
     do {
         if(num_cycles >= 2) {
             // Execute
@@ -49,6 +49,7 @@ void pipeline(memory_t main_memory, struct RegisterFile *registers)   {
             if(should_terminate) {
                 break;
             }
+            num_instructions--;
         }
         if(num_cycles >= 1) {
             // Decode
@@ -59,5 +60,5 @@ void pipeline(memory_t main_memory, struct RegisterFile *registers)   {
         fetched = main_memory[registers->program_counter];
         registers->program_counter += bytes_per_instr;
         num_cycles++;
-    } while(1);
+    } while(num_instructions > 0);
 }
