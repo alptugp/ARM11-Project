@@ -19,7 +19,7 @@ clean:
 
 .PHONY: all clean
 
-main.o:	emulate.h binary_loader.h
+main.o:	main.h emulate.h binary_loader.h
 
 emulate.o:	emulate.h
 
