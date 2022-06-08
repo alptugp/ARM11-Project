@@ -34,7 +34,7 @@ static void output_state(memory_t memory, struct RegisterFile *registers) {
         }
 
         if(is_nonzero) {
-            printf("0x%0*lx: ", HEX_LENGTH, address);
+            printf("0x%0*lx: 0x", HEX_LENGTH, address);
             printf("%s", to_print);
             printf("\n");
         }
@@ -49,7 +49,6 @@ int main(int argc, char *argv[]) {
     memory_t memory = (memory_t) (calloc(MEMSIZE, sizeof(char)));
     assert(memory);
     int num_instructions = file_load(filename, MEMSIZE, memory);
-    //output_state(memory, &registers);
     pipeline(memory, &registers, num_instructions);
     output_state(memory, &registers);
     free(memory);
