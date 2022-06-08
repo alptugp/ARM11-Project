@@ -4,19 +4,6 @@
 #include <assert.h>
 #include <string.h>
 
-/*
-need to check if file exists
-if it does, open it
-otherwise print error message saying file doesn't exist, return out of function
--
-if got to this stage, file has been opened
-check if size is larger than the memory size parameter passed into fn
-if this is the case, close file and print error message. return out of the fn
-(closing the file is the code I haven't written yet)
-
-return the file
-*/
-
 int file_load(const char *file_path, word mem_size, memory_t memory) {
     FILE *file;
     if (access(file_path, F_OK) == 0) {
@@ -51,8 +38,7 @@ int file_load(const char *file_path, word mem_size, memory_t memory) {
     rewind(file_ptr);
 
     //ensures buffer, which holds the array of bytes, has enough memory for the file
-    const int bytes_in_file = sizeof(char) * file_size;
-    char *buffer = (char *)malloc(bytes_in_file);
+    char *buffer = (char *)malloc(file_size);
     assert(buffer);
     fread(buffer, file_size, elems, file_ptr);
     fclose(file_ptr);
@@ -63,5 +49,5 @@ int file_load(const char *file_path, word mem_size, memory_t memory) {
     
     free(buffer);
 
-    return bytes_in_file / (sizeof(word) / sizeof(char));
+    return file_size / sizeof(word);
 }

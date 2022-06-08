@@ -4,9 +4,15 @@
 #include <stdint.h>
 #include <stdio.h>
 
+typedef uint32_t word;
+typedef int32_t signed_word;
+typedef uint8_t byte;
+typedef char *memory_t;
+
 #define MEMSIZE 65536
 #define NUM_GENERAL_PURPOSE_REGISTERS 13
 #define REGISTER_ADDRESS_LENGTH 4
+#define BYTES_PER_INSTR sizeof(word)
 
 #define COND_MSB 31
 #define COND_LSB 28
@@ -15,11 +21,6 @@
 #define C_FLAG_CPSR 29
 #define V_FLAG_CPSR 28
 
-
-typedef uint32_t word;
-typedef int32_t signed_word;
-typedef uint8_t byte;
-typedef char *memory_t;
 
 struct RegisterFile {
     word general_purpose[NUM_GENERAL_PURPOSE_REGISTERS];
@@ -56,8 +57,6 @@ word extract_bits_64bit(const long value, unsigned int begin, unsigned int end);
 word extract_bits(const word value, unsigned int begin, unsigned int end);
 
 void write_bits(word *value, unsigned int begin, unsigned int end, word replacement_bits);
-
-short cond_check(const word instruction, struct RegisterFile *const registers);
 
 void clear_registers(struct RegisterFile *registers);
 

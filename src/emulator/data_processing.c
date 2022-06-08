@@ -3,7 +3,7 @@
 
 static void calc_result_and_cout(long res_64bit, word *result, short *cout) {
     *result = (word) res_64bit;
-    *cout = extract_bits_64bit(res_64bit, sizeof(word) + 1, sizeof(word) + 1);
+    *cout = extract_bits_64bit(res_64bit, sizeof(word) * 8 + 1, sizeof(word) * 8 + 1);
 }
 
 static word load_immediate_value(word *instruction, short *cout) {
@@ -26,7 +26,7 @@ static word load_register_value(word *instruction, struct RegisterFile *register
     unsigned int carry_bit_location;
     switch(shift_type) {
         case LSL:
-            carry_bit_location = sizeof(word) - shift_amount;
+            carry_bit_location = sizeof(word) * 8 - shift_amount;
             value <<= shift_amount;
         case LSR:
             carry_bit_location = shift_amount - 1;
@@ -37,7 +37,7 @@ static word load_register_value(word *instruction, struct RegisterFile *register
             value = (word) (signed_value >>= shift_amount);
         case ROR:
             carry_bit_location = shift_amount - 1;
-            value = (value >> shift_amount) | (value << (sizeof(word) - shift_amount));
+            value = (value >> shift_amount) | (value << (sizeof(word) * 8 - shift_amount));
         default:
             printf("Invalid shift type: %x", shift_type);
             assert(0);
@@ -48,70 +48,67 @@ static word load_register_value(word *instruction, struct RegisterFile *register
 }
 
 short data_processing(word *instruction, struct RegisterFile *registers, memory_t memory) {
-    if (cond_check(*instruction, registers) != 0) {
-        word dest_reg = extract_bits(*instruction, DEST_REG_LSB, REGISTER_ADDRESS_LENGTH + DEST_REG_LSB);
-        word first_operand_reg = registers->general_purpose[extract_bits(*instruction, FIRST_OPERAND_LSB, REGISTER_ADDRESS_LENGTH + FIRST_OPERAND_LSB)];
-        word immediate_operand = extract_bits(*instruction, IMMEDIATE_OPERAND_BIT, IMMEDIATE_OPERAND_BIT);
-        short *cout;
-        word *result;
-        long res_64bit;
-        // Next line will set cout to the shifter carry out
-        word operand2 = (immediate_operand == 1) ? load_immediate_value(instruction, cout) : load_register_value(instruction, registers, cout);
+    word dest_reg = extract_bits(*instruction, DEST_REG_LSB, REGISTER_ADDRESS_LENGTH + DEST_REG_LSB);
+    word first_operand_reg = registers->general_purpose[extract_bits(*instruction, FIRST_OPERAND_LSB, REGISTER_ADDRESS_LENGTH + FIRST_OPERAND_LSB)];
+    word immediate_operand = extract_bits(*instruction, IMMEDIATE_OPERAND_BIT, IMMEDIATE_OPERAND_BIT);
+    short *cout;
+    word *result;
+    long res_64bit;
+    // Next line will set cout to the shifter carry out
+    word operand2 = (immediate_operand == 1) ? load_immediate_value(instruction, cout) : load_register_value(instruction, registers, cout);
 
-        word opcode = extract_bits(*instruction, MNEMONIC_LSB, MNEMONIC_MSB);
-        switch (opcode) {
-            // ARITHMETIC OPERATIONS
-            case CMP:
-            case SUB:
-                res_64bit = first_operand_reg - operand2;
-                break;
+    word opcode = extract_bits(*instruction, MNEMONIC_LSB, MNEMONIC_MSB);
+    switch (opcode) {
+        // ARITHMETIC OPERATIONS
+        case CMP:
+        case SUB:
+            res_64bit = first_operand_reg - operand2;
+            break;
 
-            case ADD:
-                res_64bit = operand2 + first_operand_reg;
-                break;
-            
-            case RSB:
-                res_64bit = operand2 - first_operand_reg;
-                break;
+        case ADD:
+            res_64bit = operand2 + first_operand_reg;
+            break;
+        
+        case RSB:
+            res_64bit = operand2 - first_operand_reg;
+            break;
 
-            // LOGICAL OPERATIONS
-            case TEQ:
-            case EOR:
-                *result = operand2 ^ first_operand_reg;
-                // set cond flags here
-                break;
+        // LOGICAL OPERATIONS
+        case TEQ:
+        case EOR:
+            *result = operand2 ^ first_operand_reg;
+            // set cond flags here
+            break;
 
-            case TST: 
-            case AND: 
-                *result = operand2 & first_operand_reg;
-                // set cond flags here 
-                break;
+        case TST: 
+        case AND: 
+            *result = operand2 & first_operand_reg;
+            // set cond flags here 
+            break;
 
-            case MOV: 
-                *result = operand2;
-                // set cond flags here
-                break;
+        case MOV: 
+            *result = operand2;
+            // set cond flags here
+            break;
 
-            case ORR:
-                *result = operand2 | first_operand_reg;
-                // set cond flags here 
-                break;
-            
-            default: 
-                printf("Invalid opcode to data processing instruction: %x", opcode);
-                assert(0);
-        }
-
-        // If we have an arithmetic op, we must overwrite cout (which is currently the shifter carry out) and get result
-        if(opcode == CMP || opcode == SUB || opcode == ADD || opcode == RSB) {
-            calc_result_and_cout(res_64bit, result, cout);
-        }
-
-
-        if(extract_bits(*instruction, SET_COND_CODE_BIT, SET_COND_CODE_BIT)) {
-            write_bits(&(registers->cpsr), Z_FLAG_CPSR, Z_FLAG_CPSR, *result == 0);
-            write_bits(&(registers->cpsr), N_FLAG_CPSR, N_FLAG_CPSR, extract_bits(*result, SIGN_BIT, SIGN_BIT));
-        }
+        case ORR:
+            *result = operand2 | first_operand_reg;
+            // set cond flags here 
+            break;
+        
+        default: 
+            printf("Invalid opcode to data processing instruction: %x", opcode);
+            assert(0);
     }
-    return 0;
+
+    // If we have an arithmetic op, we must overwrite cout (which is currently the shifter carry out) and get result
+    if(opcode == CMP || opcode == SUB || opcode == ADD || opcode == RSB) {
+        calc_result_and_cout(res_64bit, result, cout);
+    }
+
+
+    if(extract_bits(*instruction, SET_COND_CODE_BIT, SET_COND_CODE_BIT)) {
+        write_bits(&(registers->cpsr), Z_FLAG_CPSR, Z_FLAG_CPSR, *result == 0);
+        write_bits(&(registers->cpsr), N_FLAG_CPSR, N_FLAG_CPSR, extract_bits(*result, SIGN_BIT, SIGN_BIT));
+    }
 }

@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdint.h>
+#include <assert.h>
 #include "pipeliner.h"
 #include "../terminate.h"
 #include "../data_processing.h"
@@ -36,8 +37,27 @@ static instruction_ptr decode(const word instruction) {
     return &data_processing;
 }
 
+// Returns 1 if the conditiion required by the decoded instruction is met by the CPSR state.
+// Returns 0 otherwise.
+static short cond_check(const word instruction, struct RegisterFile *const registers) {
+    const word cond = extract_bits(instruction, COND_LSB, COND_MSB);
+    const word z_flag = extract_bits(registers->cpsr, Z_FLAG_CPSR, Z_FLAG_CPSR);
+    const word n_flag = extract_bits(registers->cpsr, N_FLAG_CPSR, N_FLAG_CPSR);
+    const word v_flag = extract_bits(registers->cpsr, V_FLAG_CPSR, V_FLAG_CPSR);
+
+    const short z_clear = z_flag == 0; 
+    const short n_equals_v = n_flag == v_flag;
+
+    return (cond == EQ && !z_clear)
+        || (cond == NE && z_clear)
+        || (cond == GE && n_equals_v)
+        || (cond == LT && !n_equals_v)
+        || (cond == GT && (z_clear && n_equals_v))
+        || (cond == LE && (!z_clear || (!n_equals_v)))
+        || (cond == AL);
+}
+
 void pipeline(memory_t main_memory, struct RegisterFile *registers, int num_instructions)   {
-    const int bytes_per_instr = sizeof(word) / MEMSIZE;
     instruction_ptr instr_func = NULL;
     word instr_to_exec;
     word fetched;
@@ -45,7 +65,7 @@ void pipeline(memory_t main_memory, struct RegisterFile *registers, int num_inst
     do {
         if(num_cycles >= 2) {
             // Execute
-            short should_terminate = (*instr_func)(&instr_to_exec, registers, main_memory);
+            short should_terminate = (cond_check(instr_to_exec, registers)) ? (*instr_func)(&instr_to_exec, registers, main_memory) : 0;
             if(should_terminate) {
                 break;
             }
@@ -58,7 +78,8 @@ void pipeline(memory_t main_memory, struct RegisterFile *registers, int num_inst
         }
         // Fetch
         fetched = main_memory[registers->program_counter];
-        registers->program_counter += bytes_per_instr;
+        registers->program_counter += sizeof(word);
+
         num_cycles++;
     } while(num_instructions > 0);
 }
