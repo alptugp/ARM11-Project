@@ -77,8 +77,14 @@ void pipeline(memory_t main_memory, struct RegisterFile *registers, int num_inst
             instr_to_exec = fetched;
         }
         // Fetch
-        fetched = main_memory[registers->program_counter];
-        registers->program_counter += sizeof(word);
+        fetched = 0;
+        // Load next 4 bytes in REVERSE order into fetched,
+        // as ARM binary is little-endian but instructions assume big-endianness
+        for(int pc_offset = 0; pc_offset < BYTES_PER_INSTR; pc_offset++) {
+            unsigned char next_byte = main_memory[registers->program_counter + pc_offset];
+            fetched |= (next_byte << (pc_offset * 8));
+        }
+        registers->program_counter += BYTES_PER_INSTR;
 
         num_cycles++;
     } while(num_instructions > 0);
