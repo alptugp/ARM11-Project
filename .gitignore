@@ -1,5 +1,13 @@
 #This the the canonical lab .gitignore file
 
+#ignore all files, then unignore files with extensions, directories, Makefiles
+#this has the result of ignoring binary files
+*
+!*.*
+!*/
+!Makefile
+*.bin
+
 #ignore temp files
 *~
 
@@ -16,8 +24,9 @@
 #ignore junk files from compiling C code
 *.o
 *.a
-emulate
-assemble
+
+#ignore binary files used for testing
+*.bin
 
 #ignore IDE files
 *.idea
