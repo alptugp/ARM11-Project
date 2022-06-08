@@ -2,7 +2,6 @@
 #include <stdint.h>
 #include <assert.h>
 #include "pipeliner.h"
-#include "../terminate.h"
 #include "../data_processing.h"
 #include "../single_data_transfer.h"
 #include "../multiply.h"
@@ -11,7 +10,6 @@
 // Use of function pointers requires that .c instruction files also included
 // TODO: when instructions are moved to separate subdirectory, find way to...
 // ...include ALL instruction programs automatically
-#include "../terminate.c"
 #include "../data_processing.c"
 #include "../single_data_transfer.c"
 #include "../multiply.c"
@@ -20,7 +18,7 @@
 static instruction_ptr decode(const word instruction) {
     word opcode = extract_bits(instruction, OPCODE_LSB, OPCODE_MSB);
     if(instruction == TERMINATE_VALUE) {
-        return &terminate;
+        return NULL;
     }
     if(opcode == SINGLE_DATA_TRANSFER_OPCODE) {
         return &single_data_transfer;
@@ -65,11 +63,13 @@ void pipeline(memory_t main_memory, struct RegisterFile *registers, int num_inst
     do {
         if(num_cycles >= 2) {
             // Execute
-            short should_terminate = (cond_check(instr_to_exec, registers)) ? (*instr_func)(&instr_to_exec, registers, main_memory) : 0;
+            short should_terminate = (instr_to_exec == TERMINATE_VALUE);
+            if(cond_check(instr_to_exec, registers)) {
+                should_terminate = (*instr_func)(&instr_to_exec, registers, main_memory);
+            }
             if(should_terminate) {
                 break;
             }
-            num_instructions--;
         }
         if(num_cycles >= 1) {
             // Decode
@@ -87,5 +87,5 @@ void pipeline(memory_t main_memory, struct RegisterFile *registers, int num_inst
         registers->program_counter += BYTES_PER_INSTR;
 
         num_cycles++;
-    } while(num_instructions > 0);
+    } while(1);
 }

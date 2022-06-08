@@ -17,7 +17,7 @@ clean:
 	rm -f *.o
 
 pipeliner.o: pipeliner.h \
-	 ../terminate.h ../data_processing.h ../single_data_transfer.h ../multiply.h ../branch.h ../emulate.h \
-	 ../terminate.c ../data_processing.c ../single_data_transfer.c ../multiply.c ../branch.c
+	 ../data_processing.h ../single_data_transfer.h ../multiply.h ../branch.h ../emulate.h \
+	 ../data_processing.c ../single_data_transfer.c ../multiply.c ../branch.c
 
 .PHONY: all clean
