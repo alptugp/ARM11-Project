@@ -3,7 +3,7 @@
 
 static void calc_result_and_cout(long res_64bit, word *result, short *cout) {
     *result = (word) res_64bit;
-    *cout = extract_bits_64bit(res_64bit, sizeof(word) * 8 + 1, sizeof(word) * 8 + 1);
+    *cout = (word) (extract_bits_64bit((unsigned long) res_64bit, sizeof(word) * 8 + 1, sizeof(word) * 8 + 1));
 }
 
 static word load_immediate_value(word *instruction, short *cout) {

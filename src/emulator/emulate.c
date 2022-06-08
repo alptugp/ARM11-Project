@@ -7,9 +7,10 @@ static void validate_begin_end(unsigned int begin, unsigned int end, unsigned in
 }
 
 // Extract bits from a 64 bit number in the range [begin, end]
-word extract_bits_64bit(const long value, unsigned int begin, unsigned int end) {
+unsigned long extract_bits_64bit(const unsigned long value, unsigned int begin, unsigned int end) {
     validate_begin_end(begin, end, (unsigned int) 64);
-    long mask = (1 << (end - begin)) - 1;
+    // mask is (end - begin) 1s in the least significant bits
+    unsigned long mask = ((1 << (end - begin)) - 1) | (1 << (end - begin));
     return (value >> begin) & mask;
 }
 
@@ -17,8 +18,7 @@ word extract_bits_64bit(const long value, unsigned int begin, unsigned int end) 
 // Extracts bits from a word in the range [begin, end]
 word extract_bits(const word value, unsigned int begin, unsigned int end) {
     validate_begin_end(begin, end, (unsigned int) 32);
-    long long_res = extract_bits_64bit((long) value, begin, end);
-    return (word) long_res; 
+    return (word) (extract_bits_64bit((unsigned long) value, begin, end));
 }
 
 void write_bits(word *value, unsigned int begin, unsigned int end, word replacement_bits) {

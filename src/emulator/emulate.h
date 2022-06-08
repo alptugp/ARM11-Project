@@ -52,7 +52,7 @@ enum cond_code {
     AL = 14 // always
 };
 
-word extract_bits_64bit(const long value, unsigned int begin, unsigned int end);
+unsigned long extract_bits_64bit(const unsigned long value, unsigned int begin, unsigned int end);
 
 word extract_bits(const word value, unsigned int begin, unsigned int end);
 
