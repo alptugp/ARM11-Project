@@ -9,5 +9,5 @@ short branch(word *instruction, struct RegisterFile *registers, memory_t memory)
         assert(0);
     }
     registers->program_counter = pc_value;
-    return 0;
+    return 2;
 }

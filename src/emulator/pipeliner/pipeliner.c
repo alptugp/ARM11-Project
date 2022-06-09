@@ -59,23 +59,28 @@ void pipeline(memory_t main_memory, struct RegisterFile *registers, int num_inst
     instruction_ptr instr_func = NULL;
     word instr_to_exec;
     word fetched;
-    int num_cycles = 0;
+    int cycles_since_cleared = 0;
     do {
-        if(num_cycles >= 2) {
+        if(cycles_since_cleared >= 2) {
             // Execute
             short should_terminate = (instr_to_exec == TERMINATE_VALUE);
             if(cond_check(instr_to_exec, registers)) {
                 should_terminate = (*instr_func)(&instr_to_exec, registers, main_memory);
             }
-            if(should_terminate) {
+            if(should_terminate == 1) {
                 break;
             }
+            else if(should_terminate == 2) {
+                // clear pipeline
+                fetched = 0;
+                cycles_since_cleared = 0;
+            }
         }
-        if(num_cycles >= 1) {
-            // Decode
-            instr_func = decode(fetched);
-            instr_to_exec = fetched;
-        }
+
+        //Decode
+        instr_func = decode(fetched);
+        instr_to_exec = fetched;
+
         // Fetch
         fetched = 0;
         // Load next 4 bytes in REVERSE order into fetched,
@@ -86,6 +91,6 @@ void pipeline(memory_t main_memory, struct RegisterFile *registers, int num_inst
         }
         registers->program_counter += BYTES_PER_INSTR;
 
-        num_cycles++;
+        cycles_since_cleared++;
     } while(1);
 }

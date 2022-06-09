@@ -30,6 +30,10 @@ struct RegisterFile {
     word cpsr;
 };
 
+// Pointer to a generic instruction function.
+// Defines interface of instruction functions, and simplifies code.
+// Return value is a short that takes on 3 values:
+// 0 for do nothing, 1 for terminate program, 2 for clear pipeline
 typedef short (*instruction_ptr)(word*, struct RegisterFile*, memory_t);
 
 // Condition codes for ARM instructions multiply, data processing, and single data transfer, and branch.
