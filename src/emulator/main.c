@@ -6,7 +6,7 @@
 #include <string.h>
 
 static void output_register(char *register_name, word register_value) {
-    printf("%-*s:%*d (0x%0*x)\n", REG_NAME_LENGTH, register_name, REG_VALUE_LENGTH, register_value, HEX_LENGTH, register_value);
+    printf("%-*s: %*d (0x%0*x)\n", REG_NAME_LENGTH, register_name, REG_VALUE_LENGTH, register_value, HEX_LENGTH, register_value);
 }
 
 static void output_state(memory_t memory, struct RegisterFile *registers) {
