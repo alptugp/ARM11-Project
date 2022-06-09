@@ -24,10 +24,15 @@ int file_load(const char *file_path, word mem_size, memory_t memory) {
         printf("Size of the file is too large.\n");
 
         //closes file
+        /*
         word closed = fclose(file);
         while (closed != 0) {
             closed = fclose(file);
         }
+        */
+        word closed;
+        do {
+        }while((closed = fclose(file)));
         assert(0);
     }
 
@@ -43,10 +48,10 @@ int file_load(const char *file_path, word mem_size, memory_t memory) {
     fread(buffer, file_size, elems, file_ptr);
     fclose(file_ptr);
 
-    //buffer now has array of bytes holding the file's contents
+    //buffer now has array of bytes holding the file's content
 
-    strcpy(memory, buffer);
-    
+    memcpy(memory, buffer, file_size);
+
     free(buffer);
 
     return file_size / sizeof(word);
