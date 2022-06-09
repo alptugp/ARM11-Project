@@ -24,10 +24,16 @@ word extract_bits(const word value, unsigned int begin, unsigned int end) {
 void write_bits(word *value, unsigned int begin, unsigned int end, word replacement_bits) {
     validate_begin_end(begin, end, 32);
     // Check replacment only has 1s up to bit at end minus begin
-    assert(!(replacement_bits >> (end - begin)));
+    assert(!(replacement_bits >> (end - begin + 1)));
     
+    word ones_after_begin = ((word) 1 << begin) - 1; 
+    word ones_before_end = 0;
+    for(int bit_index = end + 1; bit_index < sizeof(word) * 8; bit_index++) {
+        ones_before_end |= ((word) 1 << bit_index);
+    }
     // Mask is 0s in replacement region, 1s everywhere else
-    word mask = ((1 << begin) - 1) | (~(((1 << (end + 1)) - 1)));
+    word mask = ones_after_begin | ones_before_end;
+    // word mask = ((1 << begin) - 1) | (~(((1 << (end + 1)) - 1)));
     *value &= mask;
     *value |= (replacement_bits << begin);
 }

@@ -1,13 +1,13 @@
 #include "data_processing.h"
 #include <assert.h>
 
-static void calc_result_and_cout(short write_result, short write_cout, long res_64bit, word *dest_reg, short *cout) {
-    if(write_result) {
-        *dest_reg = (word) res_64bit;
-    }
-    if(write_cout) {
-        *cout = (word) (extract_bits_64bit((unsigned long) res_64bit, sizeof(word) * 8 + 1, sizeof(word) * 8 + 1));
-    }
+static short no_borrow_sub(long long minuend, long long subtrahend, long long result) {
+    // Cast all values to max possible # of bits (at least 64), and check if 
+    // subtraction valid in 64-bit - an overflowed 32-bit sub won't be valid in 
+    // 64 bits. Sub not valid -> overflow produced -> borrow.
+    // NOTE that this function cannot detect 64-bit subtraction overflows,
+    // but it does not need to.
+    return result == minuend - subtrahend;
 }
 
 static word load_immediate_value(word *instruction, short *cout) {
@@ -57,7 +57,7 @@ static word load_register_value(word *instruction, struct RegisterFile *register
 
 short data_processing(word *instruction, struct RegisterFile *registers, memory_t memory) {
     word *dest_reg = &(registers->general_purpose[extract_bits_64bit(*instruction, DEST_REG_LSB, REGISTER_ADDRESS_LENGTH - 1 + DEST_REG_LSB)]);
-    word first_operand_reg = registers->general_purpose[extract_bits(*instruction, FIRST_OPERAND_LSB, REGISTER_ADDRESS_LENGTH - 1 + FIRST_OPERAND_LSB)];
+    word operand1 = registers->general_purpose[extract_bits(*instruction, FIRST_OPERAND_LSB, REGISTER_ADDRESS_LENGTH - 1 + FIRST_OPERAND_LSB)];
     word immediate_operand = extract_bits(*instruction, IMMEDIATE_OPERAND_BIT, IMMEDIATE_OPERAND_BIT);
     short cout;
     long res_64bit;
@@ -69,26 +69,26 @@ short data_processing(word *instruction, struct RegisterFile *registers, memory_
         // ARITHMETIC OPERATIONS
         case CMP:
         case SUB:
-            res_64bit = first_operand_reg - operand2;
+            res_64bit = operand1 - operand2;
             break;
 
         case ADD:
-            res_64bit = operand2 + first_operand_reg;
+            res_64bit = operand2 + operand1;
             break;
         
         case RSB:
-            res_64bit = operand2 - first_operand_reg;
+            res_64bit = operand2 - operand1;
             break;
 
         // LOGICAL OPERATIONS
         case TEQ:
         case EOR:
-            res_64bit = operand2 ^ first_operand_reg;
+            res_64bit = operand2 ^ operand1;
             break;
 
         case TST: 
         case AND: 
-            res_64bit = operand2 & first_operand_reg;
+            res_64bit = operand2 & operand1;
             // set cond flags here 
             break;
 
@@ -98,7 +98,7 @@ short data_processing(word *instruction, struct RegisterFile *registers, memory_
             break;
 
         case ORR:
-            res_64bit = operand2 | first_operand_reg;
+            res_64bit = operand2 | operand1;
             // set cond flags here 
             break;
         
@@ -106,14 +106,25 @@ short data_processing(word *instruction, struct RegisterFile *registers, memory_
             printf("Invalid opcode to data processing instruction: %x", opcode);
             assert(0);
     }
-
-    short overwite_cout = (opcode == CMP || opcode == SUB || opcode == ADD || opcode == RSB);
-    short write_result = !(opcode == TST || opcode == TEQ || opcode == CMP);
-    calc_result_and_cout(write_result, overwite_cout, res_64bit, dest_reg, &cout);
+    
+    word res_32bit = (word) res_64bit;
+    if(opcode == ADD) {
+        cout = (word) (extract_bits_64bit((unsigned long) res_64bit, sizeof(word) * 8, sizeof(word) * 8));
+    }
+    else if(opcode == CMP || opcode == SUB) {
+        cout = no_borrow_sub(operand1, operand2, res_32bit);
+    }
+    else if(opcode == RSB) {
+        cout = no_borrow_sub(operand2, operand1, res_32bit);
+    }
+    if(!(opcode == TST || opcode == TEQ || opcode == CMP)) {
+        *dest_reg = res_32bit;
+    }
 
     if(extract_bits(*instruction, SET_COND_CODE_BIT, SET_COND_CODE_BIT)) {
-        write_bits(&(registers->cpsr), Z_FLAG_CPSR, Z_FLAG_CPSR, *dest_reg == 0);
-        write_bits(&(registers->cpsr), N_FLAG_CPSR, N_FLAG_CPSR, extract_bits(*dest_reg, SIGN_BIT, SIGN_BIT));
+        write_bits(&(registers->cpsr), Z_FLAG_CPSR, Z_FLAG_CPSR, res_32bit == 0);
+        write_bits(&(registers->cpsr), N_FLAG_CPSR, N_FLAG_CPSR, extract_bits(res_32bit, SIGN_BIT, SIGN_BIT));
+        write_bits(&(registers->cpsr), C_FLAG_CPSR, C_FLAG_CPSR, extract_bits(cout, 0, 0));
     }
 
     return 0;
