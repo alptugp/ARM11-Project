@@ -10,63 +10,26 @@ static short no_borrow_sub(long long minuend, long long subtrahend, long long re
     return result == minuend - subtrahend;
 }
 
-static word rotate_right(const word unrotated, const word rotation) {
-    return (unrotated >> rotation) | (unrotated << (sizeof(word) * 8 - rotation));
-}
-
-static word load_immediate_value(word *instruction, short *cout) {
-    word unrotated = extract_bits(*instruction, OPERAND2_IMM_LSB, OPERAND2_IMM_MSB);
-    word rotation = 2 * extract_bits(*instruction, ROTATE_LSB, ROTATE_MSB);
+static word load_immediate(word instruction, short *cout, int shifted_lsb) {
+    word unrotated = extract_shifted_bits(instruction, SHIFTED_IMM_OFFSET, SHIFTED_IMM_SIZE, shifted_lsb);
+    word rotation = 2 * extract_shifted_bits(instruction, SHIFTED_ROTATE_OFFSET, SHIFTED_ROTATE_SIZE, shifted_lsb);
     return rotate_right(unrotated, rotation);
-}
-
-static word load_register_value(word *instruction, struct RegisterFile *registers, short *cout) {
-    word value = registers->general_purpose[extract_bits(*instruction, RM_LSB, RM_MSB)];
-    word shift_amount;
-    if(extract_bits(*instruction, SHIFTER_BIT, SHIFTER_BIT)) {
-        shift_amount = registers->general_purpose[extract_bits(*instruction, SHIFT_REGISTER_LSB, SHIFT_REGISTER_MSB)];
-    }
-    else {
-        shift_amount = extract_bits(*instruction, SHIFT_INTEGER_LSB, SHIFT_INTEGER_MSB);
-    }
-    word shift_type = extract_bits(*instruction, SHIFT_TYPE_LSB, SHIFT_TYPE_MSB);
-    word old_value = value;
-    unsigned int carry_bit_location;
-    switch(shift_type) {
-        case LSL:
-            carry_bit_location = sizeof(word) * 8 - shift_amount;
-            value <<= shift_amount;
-            break;
-        case LSR:
-            carry_bit_location = shift_amount - 1;
-            value >>= shift_amount;
-            break;
-        case ASR:
-            carry_bit_location = shift_amount - 1;
-            signed_word signed_value = (signed_word) value;
-            value = (word) (signed_value >>= shift_amount);
-            break;
-        case ROR:
-            carry_bit_location = shift_amount - 1;
-            value = rotate_right(value, shift_amount);
-            break;
-        default:
-            printf("Invalid shift type: %x", shift_type);
-            assert(0);
-    }
-    *cout = (shift_amount != 0) ? extract_bits(old_value, carry_bit_location, carry_bit_location) 
-        : 0;
-    return value;
 }
 
 short data_processing(word *instruction, struct RegisterFile *registers, memory_t memory) {
     word *dest_reg = &(registers->general_purpose[extract_bits_64bit(*instruction, DEST_REG_LSB, REGISTER_ADDRESS_LENGTH - 1 + DEST_REG_LSB)]);
     word operand1 = registers->general_purpose[extract_bits(*instruction, FIRST_OPERAND_LSB, REGISTER_ADDRESS_LENGTH - 1 + FIRST_OPERAND_LSB)];
-    word load_immediate = extract_bits(*instruction, IMMEDIATE_OPERAND_BIT, IMMEDIATE_OPERAND_BIT);
     short cout;
     long res_64bit;
-    // Next line will set cout to the shifter carry out
-    word operand2 = (load_immediate == 1) ? load_immediate_value(instruction, &cout) : load_register_value(instruction, registers, &cout);
+    // Next line will set cout to the shifter carry out after shifting the value
+    // word operand2 = (to_load_immediate == 1) ? load_immediate(instruction, &cout, 0) : load_register(instruction, &cout, 0, registers);
+    word operand2;
+    if(extract_bits(*instruction, IMMEDIATE_OPERAND_BIT, IMMEDIATE_OPERAND_BIT)) {
+        operand2 = load_immediate(*instruction, &cout, OFFSET_LSB);
+    }
+    else {
+        operand2 = load_register(*instruction, &cout, OFFSET_LSB, registers);
+    }
 
     word opcode = extract_bits(*instruction, MNEMONIC_LSB, MNEMONIC_MSB);
     switch (opcode) {

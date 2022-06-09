@@ -10,20 +10,9 @@
 #define IMMEDIATE_OPERAND_BIT 25
 #define DONT_WRITE_OPCODE 2 // 10
 #define SET_COND_CODE_BIT 20
-#define OPERAND2_IMM_LSB 0
-#define OPERAND2_IMM_MSB 7
-#define ROTATE_LSB 8
-#define ROTATE_MSB 11
-#define RM_LSB 0
-#define RM_MSB 3
-#define SHIFTER_BIT 4
-#define SHIFT_TYPE_LSB 5
-#define SHIFT_TYPE_MSB 6
-#define SHIFT_REGISTER_LSB 8
-#define SHIFT_REGISTER_MSB 11
-#define SHIFT_INTEGER_LSB 7
-#define SHIFT_INTEGER_MSB 11
+#define SHIFTED_VALUE_LSB 0
 #define SIGN_BIT 31
+#define OFFSET_LSB 0
 
 typedef enum {
     AND = 0,
@@ -43,8 +32,6 @@ typedef enum {
     // bic = 14,
     // mvn = 15
 } opcode_t;
-
-enum shift_types { LSL, LSR, ASR, ROR };
 
 short data_processing(word *instruction, struct RegisterFile *registers, memory_t memory);
 

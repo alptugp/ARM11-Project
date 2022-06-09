@@ -6,7 +6,7 @@
 #include <string.h>
 
 static void output_register(char *register_name, word register_value) {
-    printf("%-*s: %*d (0x%0*x)\n", REG_NAME_LENGTH, register_name, REG_VALUE_LENGTH, register_value, HEX_LENGTH, register_value);
+    printf("%-*s: %*d (0x%0*x)\n", REG_NAME_LENGTH, register_name, REG_VALUE_LENGTH, register_value, HEX_OUTPUT_LENGTH, register_value);
 }
 
 static void output_state(memory_t memory, struct RegisterFile *registers) {
@@ -22,7 +22,7 @@ static void output_state(memory_t memory, struct RegisterFile *registers) {
     printf("Non-zero memory:\n");
     for(uint64_t address = 0; address < MEMSIZE; address+=ADDRESSES_PER_OUTPUT_LINE) {
         assert((address + 3) < MEMSIZE);
-        char to_print[HEX_LENGTH] = "";
+        char to_print[HEX_OUTPUT_LENGTH] = "";
         short is_nonzero = 0;
         int str_length = 0;
 
@@ -34,7 +34,7 @@ static void output_state(memory_t memory, struct RegisterFile *registers) {
         }
 
         if(is_nonzero) {
-            printf("0x%0*lx: 0x", HEX_LENGTH, address);
+            printf("0x%0*lx: 0x", HEX_OUTPUT_LENGTH, address);
             printf("%s", to_print);
             printf("\n");
         }

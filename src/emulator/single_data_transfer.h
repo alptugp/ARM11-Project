@@ -3,12 +3,12 @@
 
 #include "emulate.h"
 
-#define OFFSET_LS_BIT 0
-#define OFFSET_MS_BIT 11
-#define RD_LS_BIT 12
-#define RD_MS_BIT 15
-#define RN_LS_BIT 16
-#define RN_MS_BIT 19
+#define SHIFTED_LSB 0
+#define SHIFTED_MSB 11
+#define RD_LSB 12
+#define RD_MSB 15
+#define RN_LSB 16
+#define RN_MSB 19
 #define L_BIT 20
 #define U_BIT 23
 #define P_BIT 24
