@@ -10,10 +10,14 @@ static short no_borrow_sub(long long minuend, long long subtrahend, long long re
     return result == minuend - subtrahend;
 }
 
+static word rotate_right(const word unrotated, const word rotation) {
+    return (unrotated >> rotation) | (unrotated << (sizeof(word) * 8 - rotation));
+}
+
 static word load_immediate_value(word *instruction, short *cout) {
     word unrotated = extract_bits(*instruction, OPERAND2_IMM_LSB, OPERAND2_IMM_MSB);
     word rotation = 2 * extract_bits(*instruction, ROTATE_LSB, ROTATE_MSB);
-    return (unrotated <<= rotation);
+    return rotate_right(unrotated, rotation);
 }
 
 static word load_register_value(word *instruction, struct RegisterFile *registers, short *cout) {
@@ -44,7 +48,7 @@ static word load_register_value(word *instruction, struct RegisterFile *register
             break;
         case ROR:
             carry_bit_location = shift_amount - 1;
-            value = (value >> shift_amount) | (value << (sizeof(word) * 8 - shift_amount));
+            value = rotate_right(value, shift_amount);
             break;
         default:
             printf("Invalid shift type: %x", shift_type);
@@ -58,11 +62,11 @@ static word load_register_value(word *instruction, struct RegisterFile *register
 short data_processing(word *instruction, struct RegisterFile *registers, memory_t memory) {
     word *dest_reg = &(registers->general_purpose[extract_bits_64bit(*instruction, DEST_REG_LSB, REGISTER_ADDRESS_LENGTH - 1 + DEST_REG_LSB)]);
     word operand1 = registers->general_purpose[extract_bits(*instruction, FIRST_OPERAND_LSB, REGISTER_ADDRESS_LENGTH - 1 + FIRST_OPERAND_LSB)];
-    word immediate_operand = extract_bits(*instruction, IMMEDIATE_OPERAND_BIT, IMMEDIATE_OPERAND_BIT);
+    word load_immediate = extract_bits(*instruction, IMMEDIATE_OPERAND_BIT, IMMEDIATE_OPERAND_BIT);
     short cout;
     long res_64bit;
     // Next line will set cout to the shifter carry out
-    word operand2 = (immediate_operand == 1) ? load_immediate_value(instruction, &cout) : load_register_value(instruction, registers, &cout);
+    word operand2 = (load_immediate == 1) ? load_immediate_value(instruction, &cout) : load_register_value(instruction, registers, &cout);
 
     word opcode = extract_bits(*instruction, MNEMONIC_LSB, MNEMONIC_MSB);
     switch (opcode) {

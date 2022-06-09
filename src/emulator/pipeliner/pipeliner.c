@@ -64,7 +64,8 @@ void pipeline(memory_t main_memory, struct RegisterFile *registers, int num_inst
         if(cycles_since_cleared >= 2) {
             // Execute
             short should_terminate = (instr_to_exec == TERMINATE_VALUE);
-            if(cond_check(instr_to_exec, registers)) {
+            if(!should_terminate && cond_check(instr_to_exec, registers)) {
+                assert(instr_func);
                 should_terminate = (*instr_func)(&instr_to_exec, registers, main_memory);
             }
             if(should_terminate == 1) {
