@@ -10,6 +10,9 @@
 // Use of function pointers requires that .c instruction files also included
 // TODO: when instructions are moved to separate subdirectory, find way to...
 // ...include ALL instruction programs automatically
+#include "pipeliner.h"
+#include "../instructions/gpio.h"
+#include "../instructions/gpio.c"
 #include "../instructions/data_processing.c"
 #include "../instructions/single_data_transfer.c"
 #include "../instructions/multiply.c"
