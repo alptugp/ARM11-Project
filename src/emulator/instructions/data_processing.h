@@ -33,6 +33,8 @@ typedef enum {
     // mvn = 15
 } opcode_t;
 
+// Executes a single data transfer instruction
+// the parameters *registers and memory are the current cpu state
 short data_processing(word *instruction, struct RegisterFile *registers, memory_t memory);
 
 #endif

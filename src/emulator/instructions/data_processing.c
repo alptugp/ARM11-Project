@@ -56,17 +56,14 @@ short data_processing(word *instruction, struct RegisterFile *registers, memory_
         case TST: 
         case AND: 
             res_64bit = operand2 & operand1;
-            // set cond flags here 
             break;
 
         case MOV: 
             res_64bit = operand2;
-            // set cond flags here
             break;
 
         case ORR:
             res_64bit = operand2 | operand1;
-            // set cond flags here 
             break;
         
         default: 

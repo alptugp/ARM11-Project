@@ -18,7 +18,8 @@
 #define ACC_LOC 21
 #define SET_LOC 20
 
-
+// Executes a multiply instruction
+// the parameters *registers and memory are the current cpu state
 short multiply(word *instruction, struct RegisterFile *registers, memory_t memory);
 
 #endif
