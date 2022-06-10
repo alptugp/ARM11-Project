@@ -1,7 +1,7 @@
 #ifndef DATA_PROCESSING
 #define DATA_PROCESSING
 
-#include "emulate.h"
+#include "../emulate_utils.h"
 
 #define MNEMONIC_LSB 21
 #define MNEMONIC_MSB 24

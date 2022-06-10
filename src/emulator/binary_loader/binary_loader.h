@@ -1,7 +1,7 @@
 #ifndef BINARY_LOADER
 #define BINARY_LOADER
 
-#include "emulate.h"
+#include "../emulate_utils.h"
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>

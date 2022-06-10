@@ -2,7 +2,7 @@
 #define BRANCH_H
 
 #include <stdint.h>
-#include "emulate.h"
+#include "../emulate_utils.h"
 
 #define OFFSET_MSB 23
 #define OFFSET_LSB 0

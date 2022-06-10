@@ -22,14 +22,6 @@ int file_load(const char *file_path, word mem_size, memory_t memory) {
 
     if (file_size > mem_size) {
         printf("Size of the file is too large.\n");
-
-        //closes file
-        /*
-        word closed = fclose(file);
-        while (closed != 0) {
-            closed = fclose(file);
-        }
-        */
         word closed;
         do {
         }while((closed = fclose(file)));

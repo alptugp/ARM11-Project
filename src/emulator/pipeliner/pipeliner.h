@@ -2,7 +2,7 @@
 #define PIPELINER
 
 #include <stdint.h>
-#include "../emulate.h"
+#include "../emulate_utils.h"
 
 
 #define OPCODE_MSB 27

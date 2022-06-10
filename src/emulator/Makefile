@@ -1,26 +1,26 @@
 CC = gcc
 CFLAGS = -g -Wall -pedantic -std=c99 -Ipipeliner -fsanitize=undefined
 LDFLAGS = -fsanitize=undefined
-LDLIBS = -Lpipeliner -lpipeliner
+LDLIBS = -Lpipeliner -lpipeliner -Lbinary_loader -lbinary_loader
 BUILD = libs emulate
 
 all:	$(BUILD)
 
-emulate:	main.o emulate.o binary_loader.o
+emulate:	emulate.o emulate_utils.o
 
 libs:
 	cd pipeliner; make
+	cd binary_loader; make
 
 clean:
 	rm -f *.o
 	rm -f *.a
 	rm -f $(BUILD)
 	cd pipeliner; make clean
+	cd binary_loader; make clean
 
 .PHONY: all clean
 
-main.o:	main.h emulate.h binary_loader.h
+emulate.o:	emulate.h emulate_utils.h
 
-emulate.o:	emulate.h
-
-binary_loader.o:	binary_loader.h
+emulate_utils.o:	emulate_utils.h

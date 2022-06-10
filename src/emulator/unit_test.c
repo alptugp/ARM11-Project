@@ -1,5 +1,4 @@
-#include "emulate.h"
-// #include "emulate.c"
+#include "emulate_utils.h"
 #include <assert.h>
 
 // a unit test that asserts that extractBits works
@@ -13,5 +12,3 @@ void test_extractBits() {
 }
 
 // a unit test that asserts that cond_check works
-
-
