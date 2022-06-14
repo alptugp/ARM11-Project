@@ -15,3 +15,5 @@ clean:
 	rm -f $(wildcard *.o)
 	rm -f assemble
 	rm -f emulate
+	cd assembler; make clean
+	cd emulator; make clean

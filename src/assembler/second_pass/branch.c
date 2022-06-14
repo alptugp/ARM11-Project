@@ -16,4 +16,4 @@ word branch(tokenized_source_code *tokens, word current_instr_address, symbol_ta
     instruction |= cond << COND_MASK;
     instruction |= offset & FIRST_8_BITS_MASK;
     return instruction;
-    }
+}
