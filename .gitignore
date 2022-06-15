@@ -1,5 +1,3 @@
-#This the the canonical lab .gitignore file
-
 #ignore all files, then unignore files with extensions, directories, Makefiles
 #this has the result of ignoring binary files
 *
@@ -8,25 +6,15 @@
 !Makefile
 *.bin
 
-#ignore temp files
-*~
-
-#ignore pdf files (just keep source files)
-*.pdf
-
-#ignore junk files from latex output
-*.out
-*.log
-*.aux
-*.dvi
-*.ps
-
 #ignore junk files from compiling C code
 *.o
 *.a
 
-#ignore binary files used for testing
-*.bin
+#ignore assembly .s files (used for testing)
+*.s
+
+#ignore temp files
+*~
 
 #ignore IDE files
 *.idea
@@ -34,6 +22,12 @@
 
 
 #ignore other junk files
+*.pdf
+*.out
+*.log
+*.aux
+*.dvi
+*.ps
 *.backup
 *.kate-swp
 *.swp
