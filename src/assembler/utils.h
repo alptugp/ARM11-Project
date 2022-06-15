@@ -8,6 +8,7 @@
 #define COND_MASK 28
 #define MEMSIZE 65536
 #define MAX_NUM_INSTRUCTIONS (MEMSIZE / sizeof(binary_instruction))
+#define MAX_LINE_CHARS 511
 
 typedef uint32_t word;
 typedef word binary_instruction;
