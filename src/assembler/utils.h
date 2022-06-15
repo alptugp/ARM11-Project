@@ -1,5 +1,9 @@
+#ifndef UTILS
+#define UTILS
+
 #include <stdint.h>
-#include "symbol_table.h"
+#include <stdlib.h>
+#include "symbol_table/symbol_table.h"
 
 #define COND_MASK 28;
 
@@ -10,3 +14,4 @@ typedef struct {
     int size;
 } tokenized_source_code; //source code is a string array
 
+#endif

@@ -27,10 +27,11 @@ symbol_table_value get(const symbol_table_t *symbol_table, const char key[]) {
     return symbol_table->entries[key_location].value;
 }
 
-void put(symbol_table_t *symbol_table, const char key[], const symbol_table_value value) {
+void put(symbol_table_t *symbol_table, char *key, const symbol_table_value value) {
     int key_location = find(symbol_table, key);
     if(key_location != NO_KEY_CODE) {
-        symbol_table->entries[key_location] = value;
+        symbol_table_entry new_entry = {key, value};
+        symbol_table->entries[key_location] = new_entry;
         return;
     }
 

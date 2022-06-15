@@ -1,4 +1,10 @@
+#ifndef SYMBOL_TABLE
+#define SYMBOL_TABLE
+
 #include <stdbool.h>
+#include <stdlib.h>
+#include <assert.h>
+#include <stdio.h>
 
 #define MAX_KEY_LENGTH 511
 #define NO_KEY_CODE -1
@@ -7,7 +13,7 @@
 typedef symbol_table_value; // TODO - union
 
 typedef struct symbol_table_entry {
-    char key[MAX_KEY_LENGTH];
+    char *key;
     symbol_table_value value;
 } symbol_table_entry;
 
@@ -21,6 +27,8 @@ symbol_table_t *initialise_symbol_table();
 
 symbol_table_value get(const symbol_table_t *symbol_table, const char key[]);
 
-void put(symbol_table_t *symbol_table, const char key[], const symbol_table_value value);
+void put(symbol_table_t *symbol_table, char key[], const symbol_table_value value);
 
 void free_symbol_table(symbol_table_t *symbol_table);
+
+#endif

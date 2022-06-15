@@ -1,5 +1,6 @@
 #ifndef BRANCH
 #define BRANCH
+
 #include "../utils.h"
 
 #define PIPELINE_EFFECT 8

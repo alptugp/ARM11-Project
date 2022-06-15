@@ -1,5 +1,6 @@
 #ifndef MULTIPLY
 #define MULTIPLY
+
 #include "../utils.h"
 
 #define AL 14; // must be defined in top
