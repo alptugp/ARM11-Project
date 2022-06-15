@@ -5,6 +5,6 @@
 
 // Take filename of binary file (e.g. “add01.bin”),
 // and write array of binary instructions into it
-void write_binary_instructions(char filename[], binary_instruction instructions_to_write[]);
+void write_binary_instructions(char filename[], binary_instruction *buffer, int num_instructions);
 
 #endif
