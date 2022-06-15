@@ -1,26 +1,26 @@
+NAME = emulate
 CC = gcc
-CFLAGS = -g -Wall -pedantic -std=c99 -Ipipeliner -fsanitize=undefined
+CFLAGS = -g -Wall -pedantic -std=c99 -fsanitize=undefined
 LDFLAGS = -fsanitize=undefined
-LDLIBS = -Lpipeliner -lpipeliner -Lbinary_loader -lbinary_loader
-BUILD = libs emulate
+LIBS = pipeliner binary_loader
+LDLIBS = $(foreach lib, $(LIBS), -L$(lib) -l$(lib))
+BUILD = libs $(NAME)
 
 all:	$(BUILD)
 
-emulate:	emulate.o emulate_utils.o
+$(NAME):	$(NAME).o emulate_utils.o
 
 libs:
-	cd pipeliner; make
-	cd binary_loader; make
+	$(foreach lib, $(LIBS), cd $(lib); make; cd ..;)
 
 clean:
 	rm -f *.o
 	rm -f *.a
 	rm -f $(BUILD)
-	cd pipeliner; make clean
-	cd binary_loader; make clean
+	$(foreach lib, $(LIBS), cd $(lib); make clean; cd ..;)
 
-.PHONY: all clean
+.PHONY: all clean libs
 
-emulate.o:	emulate.h emulate_utils.h
+$(NAME).o:	$(NAME).h emulate_utils.h
 
 emulate_utils.o:	emulate_utils.h

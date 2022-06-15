@@ -1,8 +1,9 @@
+NAME = binary_loader
 CC = gcc
 CCFLAGS = -g -Wall -pedantic -std=c99 -fsanitize=undefined
 LDFLAGS = -fsanitize=undefined
-LIB = libbinary_loader.a
-LIBOBJS = binary_loader.o
+LIB = lib$(NAME).a
+LIBOBJS = $(NAME).o
 BUILD = $(LIB)
 
 all:    $(BUILD)
@@ -16,6 +17,6 @@ clean:
 	rm -f *.a
 	rm -f *.o
 
-binary_loader.o: binary_loader.h ../emulate_utils.h
+$(NAME).o: $(NAME).h ../emulate_utils.h
 
 .PHONY: all clean
