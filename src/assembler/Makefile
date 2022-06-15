@@ -21,4 +21,4 @@ clean:
 
 .PHONY: all clean libs
 
-assemble.o:	assemble.h
+assemble.o:	
