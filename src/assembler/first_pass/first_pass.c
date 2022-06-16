@@ -7,11 +7,13 @@ int first_pass(char **raw_lines, symbol_table_t *labels_to_addresses, int num_ra
         char *line = raw_lines[line_num];
         if(line[strlen(line) - 1] == ':') {
             char label[strlen(line) - 1];
-            strncpy(label, line, strlen(line) - 1);
+            strncpy(label, line, strlen(line) - 1); // copies up to and excluding ':'
+            label[strlen(line) - 1] = '\0';
             put(labels_to_addresses, label, instr_count * sizeof(binary_instruction));
         }
         else {
             delabelled_lines[instr_count] = malloc(MAX_LINE_CHARS);
+            assert(delabelled_lines[instr_count]);
             strcpy(delabelled_lines[instr_count], raw_lines[line_num]);
             instr_count++;
         }
