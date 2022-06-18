@@ -1,9 +1,9 @@
 #include <stdlib.h>
 #include "utils.h"
-#include "binary_writer/binary_writer.h"
-#include "file_reader/file_reader.h"
-#include "first_pass/first_pass.h"
-#include "second_pass/second_pass.h"
+#include "binary_writer.h"
+#include "file_reader.h"
+#include "first_pass.h"
+#include "second_pass.h"
 
 static void free_lines(char **lines, int num_lines) {
   for(int i = 0; i < num_lines; i++) {
@@ -25,7 +25,7 @@ int main(int argc, char **argv) {
   assert(delabelled_lines[0]);
 
   binary_instruction binary_instructions[MAX_NUM_INSTRUCTIONS];
-  int num_instructions = second_pass(delabelled_lines, &labels_to_addresses, binary_instructions);
+  int num_instructions = second_pass(delabelled_lines, num_delabelled_lines, &labels_to_addresses, binary_instructions);
   write_binary_instructions(argv[2], binary_instructions, num_instructions);
 
   // Free heap-allocated data

@@ -1,7 +1,7 @@
 CC = gcc
-CFLAGS = -g -Wall -pedantic -std=c99 -fsanitize=undefined
+CFLAGS = -g -Wall -pedantic -std=c99 $(foreach lib, $(LIBS), -I$(lib))
 LIBS = binary_writer first_pass second_pass symbol_table file_reader
-LDFLAGS = -fsanitize=undefined
+LDFLAGS = $(CFLAGS)
 LDLIBS = $(foreach lib, $(LIBS), -L$(lib) -l$(lib))
 
 BUILD = libs assemble

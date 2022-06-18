@@ -1,7 +1,7 @@
 NAME = binary_writer
 CC = gcc
-CCFLAGS = -g -Wall -pedantic -std=c99 -fsanitize=undefined
-LDFLAGS = -fsanitize=undefined
+CFLAGS = -g -Wall -pedantic -std=c99
+LDFLAGS = $(CFLAGS)
 LIB = lib$(NAME).a
 LIBOBJS = $(NAME).o
 BUILD = $(LIB)
