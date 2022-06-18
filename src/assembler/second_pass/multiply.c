@@ -2,9 +2,9 @@
 #include "multiply.h"
 
 word multiply(tokenized_source_code *tokens) {
-    word Rd = get_register_adress(tokens->string_array[1]);
-    word Rm = get_register_adress(tokens->string_array[2]);
-    word Rs = get_register_adress(tokens->string_array[3]);
+    word Rd = get_register_address(tokens->string_array[1]);
+    word Rm = get_register_address(tokens->string_array[2]);
+    word Rs = get_register_address(tokens->string_array[3]);
     word cond = AL;
     word S = 0;
     word bits_4_to_7 = 9;
