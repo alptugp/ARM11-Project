@@ -28,6 +28,8 @@ symbol_table_t initialise_symbol_table();
 
 symbol_table_value get(const symbol_table_t *symbol_table, const char key[]);
 
+bool contains(const symbol_table_t *symbol_table, const char key[]);
+
 void put(symbol_table_t *symbol_table, char key[], const symbol_table_value value);
 
 void free_symbol_table(symbol_table_t *symbol_table);

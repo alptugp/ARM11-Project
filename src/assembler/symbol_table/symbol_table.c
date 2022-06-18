@@ -27,6 +27,10 @@ symbol_table_value get(const symbol_table_t *symbol_table, const char key[]) {
     return symbol_table->entries[key_location].value;
 }
 
+bool contains(const symbol_table_t *symbol_table, const char key[]) {
+    return !(find(symbol_table, key) == NO_KEY_CODE);
+}
+
 static symbol_table_entry create_new_entry(char *key, const symbol_table_value value, int max_key_length) {
     // Key may point to a string on the stack which could then be destroyed; 
     // so we should copy it into a heap-allocated key string

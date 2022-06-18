@@ -1,4 +1,3 @@
-#include "../utils.h"
 #include "multiply.h"
 
 word multiply(tokenized_source_code *tokens) {
@@ -8,7 +7,7 @@ word multiply(tokenized_source_code *tokens) {
     word cond = AL;
     word S = 0;
     word bits_4_to_7 = 9;
-    word instruction;
+    word instruction = 0;
     word Rn, A;
 
     if (tokens->size == 4) {
@@ -17,7 +16,7 @@ word multiply(tokenized_source_code *tokens) {
         A = 0;
     } else {
         // is mla instruction
-        Rn = get_register_adress(tokens->string_array[4]);
+        Rn = get_register_address(tokens->string_array[4]);
         A = 1;
     }
 
@@ -30,6 +29,7 @@ word multiply(tokenized_source_code *tokens) {
     instruction |= S << MUL_S_MASK;
     instruction |= A << MUL_A_MASK;
     instruction |= bits_4_to_7 << MUL_BITS_4_TO_7_MASK;
+    instruction |= Rm << MUL_RM_MASK;
     
     if (A) {
         instruction |= Rn << MUL_RN_MASK;
