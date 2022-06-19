@@ -2,6 +2,8 @@
 #define UTILS
 
 #include <stdlib.h>
+#include <assert.h>
+#include <stdbool.h>
 #include "symbol_table/symbol_table.h"
 #include "common_typedefs.h"
 

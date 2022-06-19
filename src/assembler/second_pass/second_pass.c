@@ -10,7 +10,7 @@ static const char *multiply_instructions[3] = {"mul", "mla", ARRAY_TERMINATION_S
 static const char *branch_instructions[8] = {"beq", "bne", "bge", "blt", "bgt", "ble", "b", ARRAY_TERMINATION_STR};
 
 // Define a string array for all the special instructions
-static const char *special_instructions[9] = {"lsl", "andeq", ARRAY_TERMINATION_STR};
+static const char *special_instructions[3] = {"lsl", "andeq", ARRAY_TERMINATION_STR};
 
 static const char *sdt_instructions[3] = {"ldr", "str", ARRAY_TERMINATION_STR};
 
@@ -49,8 +49,11 @@ int second_pass(char **lines, int num_lines, symbol_table_t *labels_to_addresses
             continue;
         }
         
-        if (is_in_array(mnemonic, data_processing_instructions) || is_in_array(mnemonic, special_instructions)) {
+        if (is_in_array(mnemonic, data_processing_instructions)) {
             binary_instructions[i] = data_processing(&tokenized_line);
+        }
+        else if (is_in_array(mnemonic, special_instructions)) {
+            binary_instructions[i] = special(&tokenized_line);
         }
         else if (is_in_array(mnemonic, multiply_instructions)) {
             binary_instructions[i] = multiply(&tokenized_line);

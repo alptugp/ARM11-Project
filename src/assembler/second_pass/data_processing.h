@@ -13,6 +13,19 @@
 #define DPI_RS_MASK 8
 #define DPI_RN_MASK 16
 
+typedef enum {
+    AND = 0,
+    EOR = 1,
+    SUB = 2,
+    RSB = 3,
+    ADD = 4,
+    TST = 8,
+    TEQ = 9,
+    CMP = 10,
+    ORR = 12,
+    MOV = 13
+} DATA_PROC_OPCODE;
+
 word data_processing(tokenized_source_code *tokens);
 void operand_parser(word *operand2, tokenized_source_code *tokens_for_operand, 
                     word *Rm, word *shift_type, word *shift_amount, word *Rs, 

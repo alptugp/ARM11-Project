@@ -3,7 +3,7 @@ CC = gcc
 CFLAGS = -g -Wall -pedantic -std=c99
 LDFLAGS = $(CFLAGS)
 LIB = lib$(NAME).a
-LIBOBJS = $(NAME).o branch.o data_processing.o multiply.o single_data_transfer.o tokenizer.o second_pass_utils.o
+LIBOBJS = $(NAME).o branch.o data_processing.o multiply.o single_data_transfer.o tokenizer.o second_pass_utils.o special.o
 BUILD = $(LIB)
 
 all:    $(BUILD)
@@ -25,5 +25,6 @@ multiply.o:	multiply.h second_pass_utils.h
 single_data_transfer.o:	single_data_transfer.h data_processing.h second_pass_utils.h
 tokenizer.o:	tokenizer.h
 second_pass_utils.o:	second_pass_utils.h
+special.o:	special.h
 
 .PHONY: all clean

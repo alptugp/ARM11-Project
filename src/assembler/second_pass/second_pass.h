@@ -7,6 +7,7 @@
 #include "multiply.h"
 #include "data_processing.h"
 #include "single_data_transfer.h"
+#include "special.h"
 #include "../symbol_table/symbol_table.h"
 
 #define MAX_MNEMONIC_LENGTH 5

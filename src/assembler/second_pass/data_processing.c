@@ -1,5 +1,32 @@
 #include "data_processing.h"
 
+static DATA_PROC_OPCODE get_data_proc_opcode(char *opcode_string) {
+    if (!strcmp(opcode_string, "and")) {
+        return AND;
+    } else if (!strcmp(opcode_string, "rsb")) {
+        return RSB;
+    } else if (!strcmp(opcode_string, "teq")) {
+        return TEQ;
+    } else if (!strcmp(opcode_string, "add")) {
+        return ADD;
+    } else if (!strcmp(opcode_string, "cmp")) {
+        return CMP;
+    } else if (!strcmp(opcode_string, "tst")) {
+        return TST;
+    } else if (!strcmp(opcode_string, "orr")) {
+        return ORR;
+    } else if (!strcmp(opcode_string, "eor")) {
+        return EOR;
+    } else if (!strcmp(opcode_string, "mov")) {
+        return MOV;
+    } else if (!strcmp(opcode_string, "sub")) {
+        return SUB;
+    } else {
+        printf("No corresponding opcode found");
+        exit(EXIT_FAILURE);
+    }
+}
+
 static void operand2_parser(word *operand2, tokenized_source_code *tokens_for_operand2, word *I, word *Rm, word *shift_type, word *shift_amount, word *Rs) {
     if (tokens_for_operand2->string_array[0][0] == 'r') {
         *I = 0;
@@ -17,7 +44,7 @@ static void operand2_parser(word *operand2, tokenized_source_code *tokens_for_op
                 // has the form <shiftname> <#expression>
 
                 // expression in hex or decimal
-                *operand2 = strstr(&tokens_for_operand2->string_array[2][1], "0x") 
+                *shift_amount = strstr(&tokens_for_operand2->string_array[2][1], "0x") 
                     ? strtol(&tokens_for_operand2->string_array[2][1], (char **)NULL, 16)
                     : strtol(&tokens_for_operand2->string_array[2][1], (char **)NULL, 10);
             } else {
@@ -54,10 +81,11 @@ static void operand2_parser(word *operand2, tokenized_source_code *tokens_for_op
 }
 
 word data_processing(tokenized_source_code *tokens) {
+
     word instruction = 0, Rn = 0, S = 0, Rd = 0, I = 0, shift_amount = 0, operand2 = 0, shift_type = 0, Rm = 0;
     word cond = AL;
     word Rs = -1;
-    OPCODE opcode = get_opcode(tokens->string_array[0]);
+    DATA_PROC_OPCODE opcode = get_data_proc_opcode(tokens->string_array[0]);
     tokenized_source_code *tokens_for_operand2 = malloc(sizeof(tokenized_source_code));
     if(!tokens_for_operand2) {
         perror("Memory for tokens for operand could not have been allocated");
