@@ -3,7 +3,7 @@
 
 static int find(const symbol_table_t *symbol_table, const char key[]) {
     for(int i = 0; i < symbol_table->next_pair_index; i++) {
-        if(symbol_table->entries[i].key == key) {
+        if(!strcmp(key, symbol_table->entries[i].key)) {
             return i;
         }
     }

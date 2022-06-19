@@ -44,10 +44,28 @@ word branch(tokenized_source_code *tokens, word current_instr_address, symbol_ta
         cond = AL;
     }
 
-    word offset = (get_instr_address(tokens->string_array[1], symbol_table) 
-                                    - current_instr_address - PIPELINE_EFFECT) >> SHIFT_VALUE_OFFSET;
+    signed_word label_address = get_instr_address(tokens->string_array[1], symbol_table);
+    signed_word offset = (label_address - (signed_word) current_instr_address - PIPELINE_EFFECT) >> SHIFT_VALUE_OFFSET;
+    if (offset < 0) {
+        offset = ~(offset) + 1;
+    }
+    // int sign_extension_length = (sizeof(word) * 8 - 1) - (OFFSET_MSB + SHIFT_VALUE_OFFSET);
+    // offset <<= sign_extension_length;
+    // offset >>= sign_extension_length;
 
-    instruction |= cond << COND_MASK;
-    instruction |= offset & FIRST_8_BITS_MASK;
-    return instruction;
+    cond <<= COND_MASK;
+    offset &= FIRST_8_BITS_MASK;
+    return instruction | cond | offset;
 }
+
+/*short branch(word *instruction, struct RegisterFile *registers, memory_t memory) {
+    signed_word offset = ((extract_bits(*instruction, OFFSET_LSB, OFFSET_MSB))) << SHIFT_VALUE_OFFSET;
+
+    signed_word pc_value = offset + (signed_word) registers->program_counter;
+    if(pc_value < 0) {
+        printf("Cannot be branched to a negative instruction address.\n");
+        assert(0);
+    }
+    registers->program_counter = pc_value;
+    return 2;
+}*/
