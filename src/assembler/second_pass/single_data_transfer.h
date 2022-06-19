@@ -14,6 +14,7 @@
 #define SDT_RN_MASK 16
 #define SDT_RS_MASK 8
 #define PC_REGISTER_INDEX 15
+#define OPERAND2_TOKEN_START 2
 
 word single_data_transfer(tokenized_source_code *tokens, word current_instr_address, word last_instr_address, word *sdt_constant);
 
