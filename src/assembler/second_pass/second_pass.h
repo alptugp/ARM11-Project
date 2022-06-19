@@ -9,11 +9,11 @@
 #include "single_data_transfer.h"
 #include "special.h"
 #include "../symbol_table/symbol_table.h"
+#include "second_pass_utils.h"
 
 #define MAX_MNEMONIC_LENGTH 5
 #define MAX_OPERAND_LENGTH 0
 #define MAX_LINE_LENGTH 511
-#define MAX_TOKEN_LENGTH 100
 #define ARRAY_TERMINATION_STR "\0"
 
 

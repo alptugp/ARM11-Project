@@ -4,6 +4,7 @@
 #include "../utils.h"
 
 #define AL 14
+#define MAX_TOKEN_LENGTH 100
 
 typedef enum {
     LSL = 0,

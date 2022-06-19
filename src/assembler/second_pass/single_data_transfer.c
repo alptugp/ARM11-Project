@@ -65,6 +65,18 @@ static bool all_tokens_match(tokenized_source_code tokens, int num_regex_tokens,
     return true;
 }
 
+static char *concat(int num_strings, ...) {
+    va_list argp;
+    va_start(argp, num_strings);
+    char *res = malloc(MAX_TOKEN_LENGTH);
+    assert(res);
+    strcpy(res, va_arg(argp, char*));
+    for(int i = 1; i < num_strings; i++) {
+        strcat(res, va_arg(argp, char*));
+    }
+    va_end(argp);
+    return res;
+}
 
 word single_data_transfer(tokenized_source_code *tokens, word current_instr_address, word last_instr_address, word *sdt_constant) {
     word cond = AL;
@@ -79,19 +91,34 @@ word single_data_transfer(tokenized_source_code *tokens, word current_instr_addr
 
     word l = tokens->string_array[0][0] == 'l' ? 1 : 0;
 
-    regex_t case1_tok3, case2_tok3, case2_tok4, case3_tok3, case3_tok4, case3_tok5, case4_tok3, case4_tok4, case5_tok3, case5_tok4, case5_tok5;
-    int status = regcomp(&case1_tok3, "[[]r([0-9]|(1[0-9]))[]]", REG_EXTENDED); // [rn]
-    status |= regcomp(&case2_tok3, "[[]r([0-9]|(1[0-2]))", REG_EXTENDED); // [rn
-    status |= regcomp(&case2_tok4, "#[+-]?(0x)?[0-9]+[]]", REG_EXTENDED); // #{+-}expression]
+    regex_t case1_tok3, case2_tok3, case2_tok4, case3_tok3, case3_tok4, case3_tok5, case3_tok6, 
+        case4_tok3, case4_tok4, case5_tok3, case5_tok4, case5_tok5, case5_tok6;
+    char *case1_tok3_regex, *case2_tok3_regex, *case2_tok4_regex, *case3_tok4_regex, *case3_tok6_regex;
+    char reg_regex[MAX_TOKEN_LENGTH] = "r([0-9]|(1[0-2]))"; // rn
+    char expression_regex[MAX_TOKEN_LENGTH] = "#[+-]?(0x)?[0-9]+"; // #{+-}expression
+    char *shiftname_regex = "[a-z]+";
+    char *shift_exp_regex = concat(5, "(", expression_regex, ")|(", reg_regex, ")");
+    int status = 0; // if any regcomps return a 1, status will be set to 1, indicating a failure
+    status |= regcomp(&case1_tok3, case1_tok3_regex = concat(3, "[[]", reg_regex, "[]]"), REG_EXTENDED); // [rn]
+    status |= regcomp(&case2_tok3, case2_tok3_regex = concat(2, "[[]", reg_regex), REG_EXTENDED); // [rn
+    status |= regcomp(&case2_tok4, case2_tok4_regex = concat(2, expression_regex, "[]]"), REG_EXTENDED); // #{+-}expression]
     case3_tok3 = case2_tok3; // [rn
-    status |= regcomp(&case3_tok4, "[+-]?r([0-9]|(1[0-2]))", REG_EXTENDED); // {+-}Rm
-    status |= regcomp(&case3_tok5, "[a-z]+(0x)?[0-9]+[]]", REG_EXTENDED); // shift], i.e. shiftname #expression| 
+    status |= regcomp(&case3_tok4, case3_tok4_regex = concat(2, "[+-]?", reg_regex), REG_EXTENDED); // {+-}rm
+    status |= regcomp(&case3_tok5, shiftname_regex, REG_EXTENDED);
+    status |= regcomp(&case3_tok6, case3_tok6_regex = concat(2, shift_exp_regex, "[]]"), REG_EXTENDED); // <shift>]
     case4_tok3 = case1_tok3; // [rn]
-    status |= regcomp(&case4_tok4, "#[+-]?(0x)?[0-9]+", REG_EXTENDED); // #{+-}expression
+    status |= regcomp(&case4_tok4, expression_regex, REG_EXTENDED);
     case5_tok3 = case1_tok3; // [rn]
     case5_tok4 = case3_tok4; // {+-} Rm
-    status |= regcomp(&case5_tok5, "(0x)?[0-9]+", REG_EXTENDED); // shift
-    assert(!status); // check all regexes compiled
+    status |= regcomp(&case5_tok5, shiftname_regex, REG_EXTENDED);
+    status |= regcomp(&case5_tok6, shift_exp_regex, REG_EXTENDED);
+    assert(!status); // status = 0 iff all regcomps compiled
+    free(case1_tok3_regex);
+    free(case2_tok3_regex);
+    free(case2_tok4_regex);
+    free(case3_tok4_regex);
+    free(case3_tok6_regex);
+    free(shift_exp_regex);
 
     if (tokens->string_array[2][0] != '=') {
         if(all_tokens_match(*tokens, 1, case1_tok3)) {
@@ -108,10 +135,13 @@ word single_data_transfer(tokenized_source_code *tokens, word current_instr_addr
             u = get_value(&tokens->string_array[3][1]) >= 0;
             offset = abs(get_value(&tokens->string_array[3][1]));
         }
-        else if(all_tokens_match(*tokens, 3, case3_tok3, case3_tok4, case3_tok5)) {
+        else if(all_tokens_match(*tokens, 4, case3_tok3, case3_tok4, case3_tok5, case3_tok6)) {
             // CASE 3 optional
             // <address> has the form [Rn, {+/-}Rm{,<shift>}] with shift
+            // [r1, r2, lsl #2]
             sdt_shift_helper(tokens, &rs, &rm, &u, &i, &shift_type, &shift_amount, 3);
+            printf("rs = %d, rm = %d, u = %d, i = %d, shift_type = %d, shift_amount = %d\n",
+                rs, rm, u, i, shift_type, shift_amount);
         }
         else if(all_tokens_match(*tokens, 2, case3_tok3, case3_tok4)) {
             // CASE 3 without shift
@@ -124,7 +154,7 @@ word single_data_transfer(tokenized_source_code *tokens, word current_instr_addr
             offset = get_value(&tokens->string_array[3][1]);   
             rn = get_register_address(remove_square_brackets(tokens->string_array[2])); // WE NEED TO DISCARD "["
         }
-        else if(all_tokens_match(*tokens, 3, case5_tok3, case5_tok4, case5_tok5)) {
+        else if(all_tokens_match(*tokens, 4, case5_tok3, case5_tok4, case5_tok5, case5_tok6)) {
             // CASE 5 optional
             // <address> has the form [Rn, {+/-}Rm{,<shift>}] with shift
             rn = get_register_address(remove_square_brackets(tokens->string_array[2]));
