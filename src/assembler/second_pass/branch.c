@@ -46,9 +46,6 @@ word branch(tokenized_source_code *tokens, word current_instr_address, symbol_ta
 
     signed_word label_address = get_instr_address(tokens->string_array[1], symbol_table);
     signed_word offset = (label_address - (signed_word) current_instr_address - PIPELINE_EFFECT) >> SHIFT_VALUE_OFFSET;
-    if (offset < 0) {
-        offset = ~(offset) + 1;
-    }
     // int sign_extension_length = (sizeof(word) * 8 - 1) - (OFFSET_MSB + SHIFT_VALUE_OFFSET);
     // offset <<= sign_extension_length;
     // offset >>= sign_extension_length;
