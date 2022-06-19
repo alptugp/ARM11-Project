@@ -39,10 +39,15 @@ char* get_mnemonic(char *line) {
 int second_pass(char **lines, int num_lines, symbol_table_t *labels_to_addresses, binary_instruction *binary_instructions) {
     word sdt_constants[MAX_NUM_INSTRUCTIONS];
     int num_saved_sdt_constants = 0;
+    int num_skipped_lines = 0;
     for (int i = 0; i < num_lines; i++) {
         char *line = lines[i];
         char *mnemonic = get_mnemonic(line);
         tokenized_source_code tokenized_line = tokenize_line(line);
+        if(tokenized_line.size == 0) {
+            num_skipped_lines++;
+            continue;
+        }
         
         if (is_in_array(mnemonic, data_processing_instructions) || is_in_array(mnemonic, special_instructions)) {
             binary_instructions[i] = data_processing(&tokenized_line);
@@ -73,5 +78,5 @@ int second_pass(char **lines, int num_lines, symbol_table_t *labels_to_addresses
         binary_instructions[i] = sdt_constants[i];
     }
 
-    return num_lines + num_saved_sdt_constants;
+    return num_lines + num_saved_sdt_constants - num_skipped_lines;
 }

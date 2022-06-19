@@ -3,6 +3,8 @@
 
 #include "../utils.h"
 
+#define AL 14
+
 typedef enum {
     LSL = 0,
     LSR = 1,

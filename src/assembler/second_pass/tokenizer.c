@@ -37,7 +37,7 @@ static char *trim_whitespace(char *str) {
 static char *remove_comments(char *str) {
     char* ptr = str;
     while (*ptr) {
-        if (*ptr == ';') {
+        if ((*ptr == '/') & (*(ptr+1) == '/')) {
             *ptr = '\0';
             break;
         }
@@ -77,7 +77,7 @@ tokenized_source_code tokenize_line(char* line) {
         tokens_index++;
         token = strtok(NULL, TOKEN_DELIMITERS);
     }
-    tokens.string_array[tokens_index] = NULL;
+    tokens.string_array[tokens_index] = '\0';
     tokens.size = tokens_index;
     return tokens;
 }

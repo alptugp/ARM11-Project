@@ -2,7 +2,7 @@
 #include <string.h>
 
 word get_register_address(char *register_string) {
-    return strtol(&register_string[1], (char **) NULL, 10);
+    return strtol(&register_string[1], (char **) NULL, 0);
 }
 
 SHIFT_TYPE get_shift_type(char *shift_string) {
@@ -15,7 +15,7 @@ SHIFT_TYPE get_shift_type(char *shift_string) {
     } else if (!strcmp(shift_string, "lsr")) {
         return LSR;
     } else {
-        perror("No corresponding shift type found");
+        printf("No corresponding shift type found\n");
         exit(EXIT_FAILURE);
     }
 }

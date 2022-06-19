@@ -2,22 +2,22 @@
 #include <string.h>
 
 static word get_cond(char *cond_str) {
-    if(!strcmp(cond_str, "EQ")) {
+    if(!strcmp(cond_str, "eq")) {
         return EQ;
     }
-    else if(!strcmp(cond_str, "NE")) {
+    else if(!strcmp(cond_str, "ne")) {
         return NE;
     }
-    else if(!strcmp(cond_str, "GE")) {
+    else if(!strcmp(cond_str, "ge")) {
         return GE;
     }
-    else if(!strcmp(cond_str, "LT")) {
+    else if(!strcmp(cond_str, "lt")) {
         return LT;
     }
-    else if(!strcmp(cond_str, "GT")) {
+    else if(!strcmp(cond_str, "gt")) {
         return GT;
     }
-    else if(!strcmp(cond_str, "LE")) {
+    else if(!strcmp(cond_str, "le")) {
         return LE;
     }
     else {
