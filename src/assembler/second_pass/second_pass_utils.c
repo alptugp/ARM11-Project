@@ -1,6 +1,13 @@
 #include "second_pass_utils.h"
 #include <string.h>
 
+void free_lines(char **lines, int num_lines) {
+  for(int i = 0; i < num_lines; i++) {
+      free(lines[i]);
+  }
+  free(lines);
+}
+
 word get_register_address(char *register_string) {
     return strtol(&register_string[1], (char **) NULL, 0);
 }

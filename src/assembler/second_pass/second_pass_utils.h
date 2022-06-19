@@ -12,6 +12,8 @@ typedef enum {
     ROR = 3,
 } SHIFT_TYPE;
 
+void free_lines(char **lines, int num_lines);
+
 word get_register_address(char *register_string);
 
 SHIFT_TYPE get_shift_type(char *shift_string);

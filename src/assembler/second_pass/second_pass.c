@@ -37,17 +37,24 @@ char* get_mnemonic(char *line) {
 }
 
 int second_pass(char **lines, int num_lines, symbol_table_t *labels_to_addresses, binary_instruction *binary_instructions) {
+    int num_tokenized_lines = 0;
+    tokenized_source_code tokenized_lines[num_lines];
+    char **mnemonics = malloc(MAX_NUM_INSTRUCTIONS * sizeof(char *));
+    for(int i = 0; i < num_lines; i++) {
+        tokenized_source_code tokenized_line = tokenize_line(lines[i]);
+        if(tokenized_line.size != 0) {
+            tokenized_lines[num_tokenized_lines] = tokenized_line;
+            mnemonics[num_tokenized_lines] = malloc(MAX_TOKEN_LENGTH);
+            mnemonics[num_tokenized_lines] = get_mnemonic(lines[i]);
+            num_tokenized_lines++;
+        }
+    }
+
     word sdt_constants[MAX_NUM_INSTRUCTIONS];
     int num_saved_sdt_constants = 0;
-    int num_skipped_lines = 0;
-    for (int i = 0; i < num_lines; i++) {
-        char *line = lines[i];
-        char *mnemonic = get_mnemonic(line);
-        tokenized_source_code tokenized_line = tokenize_line(line);
-        if(tokenized_line.size == 0) {
-            num_skipped_lines++;
-            continue;
-        }
+    for (int i = 0; i < num_tokenized_lines; i++) {
+        char *mnemonic = mnemonics[i];
+        tokenized_source_code tokenized_line = tokenized_lines[i];
         
         if (is_in_array(mnemonic, data_processing_instructions)) {
             binary_instructions[i] = data_processing(&tokenized_line);
@@ -61,15 +68,10 @@ int second_pass(char **lines, int num_lines, symbol_table_t *labels_to_addresses
         else if (is_in_array(mnemonic, branch_instructions)) {
             binary_instructions[i] = branch(&tokenized_line, i * sizeof(binary_instruction), labels_to_addresses);
         }
-        /*
-        else if(is_in_array(mnemonic, special_instructions)) {
-            binary_instructions[i] = special(&tokenized_line, &labels_to_addresses, binary_instructions);
-        }
-        */
         else if(is_in_array(mnemonic, sdt_instructions)) {
             word sdt_constant = 0;
-            word last_instr_address = (num_lines + num_saved_sdt_constants) * sizeof(binary_instructions);
-            binary_instructions[i] = single_data_transfer(&tokenized_line, i * sizeof(binary_instructions), last_instr_address, &sdt_constant);
+            word last_instr_address = (num_tokenized_lines + num_saved_sdt_constants) * sizeof(binary_instruction);
+            binary_instructions[i] = single_data_transfer(&tokenized_line, i * sizeof(binary_instruction), last_instr_address, &sdt_constant);
             if(sdt_constant != 0) { // word != 0 iff sdt_constant modified (constants < 0xFF saved in instruction)
                 sdt_constants[num_saved_sdt_constants] = sdt_constant;
                 num_saved_sdt_constants++;
@@ -77,9 +79,11 @@ int second_pass(char **lines, int num_lines, symbol_table_t *labels_to_addresses
         }
     }
 
-    for(int i = num_lines; i < num_lines + num_saved_sdt_constants; i++) {
-        binary_instructions[i] = sdt_constants[i];
+    for(int i = 0; i < num_saved_sdt_constants; i++) {
+        binary_instructions[i + num_tokenized_lines] = sdt_constants[i];
     }
 
-    return num_lines + num_saved_sdt_constants - num_skipped_lines;
+    free_lines(mnemonics, num_tokenized_lines);
+
+    return num_tokenized_lines + num_saved_sdt_constants;
 }

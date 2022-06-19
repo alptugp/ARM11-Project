@@ -5,13 +5,6 @@
 #include "first_pass.h"
 #include "second_pass.h"
 
-static void free_lines(char **lines, int num_lines) {
-  for(int i = 0; i < num_lines; i++) {
-      free(lines[i]);
-  }
-  free(lines);
-}
-
 int main(int argc, char **argv) {
   // Read lines from file
   assert(argc == 3);
