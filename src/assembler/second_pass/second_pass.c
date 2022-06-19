@@ -37,7 +37,7 @@ char* get_mnemonic(char *line) {
 }
 
 int second_pass(char **lines, int num_lines, symbol_table_t *labels_to_addresses, binary_instruction *binary_instructions) {
-    word *sdt_constants;
+    word sdt_constants[MAX_NUM_INSTRUCTIONS];
     int num_saved_sdt_constants = 0;
     for (int i = 0; i < num_lines; i++) {
         char *line = lines[i];
@@ -51,7 +51,7 @@ int second_pass(char **lines, int num_lines, symbol_table_t *labels_to_addresses
             binary_instructions[i] = multiply(&tokenized_line);
         }
         else if (is_in_array(mnemonic, branch_instructions)) {
-            binary_instructions[i] = branch(&tokenized_line, i * sizeof(binary_instructions), labels_to_addresses);
+            binary_instructions[i] = branch(&tokenized_line, i * sizeof(binary_instruction), labels_to_addresses);
         }
         /*
         else if(is_in_array(mnemonic, special_instructions)) {

@@ -78,7 +78,7 @@ tokenized_source_code tokenize_line(char* line) {
         token = strtok(NULL, TOKEN_DELIMITERS);
     }
     tokens.string_array[tokens_index] = NULL;
-    tokens.size = tokens_index - 1;
+    tokens.size = tokens_index;
     return tokens;
 }
 
