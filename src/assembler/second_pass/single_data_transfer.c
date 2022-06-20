@@ -17,35 +17,36 @@ static char *remove_square_brackets(char *str) {
     return new_str;
 }
 
-static void sdt_shift_helper(tokenized_source_code *tokens, word *rs, word *rm, word *u, word *i, word *shift_type, word *shift_amount, int index) {
+static void sdt_shift_helper(tokenized_source_code *tokens, word *rs, word *rm, word *u, word *i, word *shift_type, word *shift_amount) {
     *i = 1;
 
-    if (tokens->string_array[4][0] != '-') {
-        *rm = get_register_address(remove_square_brackets(tokens->string_array[index]));
+    if (tokens->string_array[3][0] != '-') {
+        *rm = get_register_address(remove_square_brackets(tokens->string_array[3]));
     } else {
-        *rm = get_register_address(remove_square_brackets(&tokens->string_array[index][1]));
+        *rm = get_register_address(remove_square_brackets(&tokens->string_array[3][1]));
         *u = 0;
     }
     
-    if (6 < tokens->size) {
+    if (4 < tokens->size) {
         // <shift> is present 
         tokenized_source_code *tokens_for_shift = malloc(sizeof(tokens));
-        if (tokens_for_shift) {
-            tokens_for_shift->size = tokens->size - index + 1;
-            tokens_for_shift->string_array = &tokens->string_array[index + 1];
-            *shift_type = get_shift_type(tokens_for_shift->string_array[0]);
-            if (tokens_for_shift->string_array[1][0] == 'r') {
-                *rs = get_register_address(remove_square_brackets(tokens_for_shift->string_array[1]));
-            } else if (tokens_for_shift->string_array[1][0] == '#') {
-                *shift_amount = get_value(&tokens_for_shift->string_array[1][1]);
-            } else {
-                perror("Shift is neither a register nor number");
-                exit(EXIT_FAILURE);
-            }
-            free(tokens_for_shift);
+        if(!tokens_for_shift) {
+            printf("Memory for tokens for shift could not have been alloacted\n");
+            exit(EXIT_FAILURE);
         }
-        perror("Memory for tokens for shift could not have been alloacted");
-        exit(EXIT_FAILURE);
+
+        tokens_for_shift->size = tokens->size - 2;
+        tokens_for_shift->string_array = &tokens->string_array[4];
+        *shift_type = get_shift_type(tokens_for_shift->string_array[0]);
+        if (tokens_for_shift->string_array[1][0] == 'r') {
+            *rs = get_register_address(remove_square_brackets(tokens_for_shift->string_array[1]));
+        } else if (tokens_for_shift->string_array[1][0] == '#') {
+            *shift_amount = get_value(&tokens_for_shift->string_array[1][1]);
+        } else {
+            printf("Shift is neither a register nor number\n");
+            exit(EXIT_FAILURE);
+        }
+        free(tokens_for_shift);   
     }
 }
 
@@ -87,13 +88,31 @@ word single_data_transfer(tokenized_source_code *tokens, word current_instr_addr
     word rn = -1;
     word rm = -1;
     word rs = -1;
-    word offset, shift_type, shift_amount, expression;
+    word offset = 0, shift_type = 0, shift_amount = 0, expression = 0;
 
     word l = tokens->string_array[0][0] == 'l' ? 1 : 0;
 
-    regex_t case1_tok3, case2_tok3, case2_tok4, case3_tok3, case3_tok4, case3_tok5, case3_tok6, 
+    /*
+    REGEXES TO MATCH THE VARIOUS FORMS OF <address>. 
+    This helps simplify the branching logic later on, and also makes it more modifiable.
+    The cases for the form of <address> are as follows:
+        Case 1: [rn]
+        Case 2: [rn, <#expression>]. Token list is "[rn", "#expression]""
+        Case 3 no shift: [rn, {+-}rm]. Token list is "[rn", "{+-rm]"
+        Case 3 shift: [rn, {+-}rm, <shift>]. 
+            Token list is "[rn", "{+-}rm", "shiftname", "rn]"/"#expression]"
+        Case 4: [rn],<#expression>. Token list is "[rn]", "#expression"
+        Case 5: [rn],{+/-}rm{,<shift>}. 
+            Token list is "[rn", "{+-}rm", {"shiftname", "rn"/"#expression"}
+    Note case 5 does not require separation into shift and no-shift cases,
+    as this is handled by the regex; case 3 requires it as the square bracket
+    is placed in different locations depending on the presence of a shift.
+    Cases 1-3 are pre-indexed and cases 4-5 are post-indexed.
+    */
+    regex_t case1_tok3, case2_tok3, case2_tok4, case3_tok3, case3_noshift_tok4, case3_shift_tok4, case3_tok5, case3_tok6, 
         case4_tok3, case4_tok4, case5_tok3, case5_tok4, case5_tok5, case5_tok6;
-    char *case1_tok3_regex, *case2_tok3_regex, *case2_tok4_regex, *case3_tok4_regex, *case3_tok6_regex;
+    char *case1_tok3_regex, *case2_tok3_regex, *case2_tok4_regex, *case3_noshift_tok4_regex,
+        *case3_shift_tok4_regex, *case3_tok6_regex;
     char reg_regex[MAX_TOKEN_LENGTH] = "r([0-9]|(1[0-2]))"; // rn
     char expression_regex[MAX_TOKEN_LENGTH] = "#[+-]?(0x)?[0-9]+"; // #{+-}expression
     char *shiftname_regex = "[a-z]+";
@@ -103,73 +122,63 @@ word single_data_transfer(tokenized_source_code *tokens, word current_instr_addr
     status |= regcomp(&case2_tok3, case2_tok3_regex = concat(2, "[[]", reg_regex), REG_EXTENDED); // [rn
     status |= regcomp(&case2_tok4, case2_tok4_regex = concat(2, expression_regex, "[]]"), REG_EXTENDED); // #{+-}expression]
     case3_tok3 = case2_tok3; // [rn
-    status |= regcomp(&case3_tok4, case3_tok4_regex = concat(2, "[+-]?", reg_regex), REG_EXTENDED); // {+-}rm
+    status |= regcomp(&case3_noshift_tok4, case3_noshift_tok4_regex = concat(3, "[+-]?", reg_regex, "[]]"), REG_EXTENDED); // {+-}rm]
+    status |= regcomp(&case3_shift_tok4, case3_shift_tok4_regex = concat(2, "[+-]?", reg_regex), REG_EXTENDED); // {+-}rm
     status |= regcomp(&case3_tok5, shiftname_regex, REG_EXTENDED);
     status |= regcomp(&case3_tok6, case3_tok6_regex = concat(2, shift_exp_regex, "[]]"), REG_EXTENDED); // <shift>]
     case4_tok3 = case1_tok3; // [rn]
     status |= regcomp(&case4_tok4, expression_regex, REG_EXTENDED);
     case5_tok3 = case1_tok3; // [rn]
-    case5_tok4 = case3_tok4; // {+-} Rm
+    case5_tok4 = case3_shift_tok4; // {+-}rm
     status |= regcomp(&case5_tok5, shiftname_regex, REG_EXTENDED);
     status |= regcomp(&case5_tok6, shift_exp_regex, REG_EXTENDED);
     assert(!status); // status = 0 iff all regcomps compiled
     free(case1_tok3_regex);
     free(case2_tok3_regex);
     free(case2_tok4_regex);
-    free(case3_tok4_regex);
+    free(case3_noshift_tok4_regex);
+    free(case3_shift_tok4_regex);
     free(case3_tok6_regex);
     free(shift_exp_regex);
 
     if (tokens->string_array[2][0] != '=') {
         if(all_tokens_match(*tokens, 1, case1_tok3)) {
             // CASE 1
-            // <address> has the form [Rn]
             p = 1;
-            rn = get_register_address(remove_square_brackets(tokens->string_array[2]));
         }
         else if(all_tokens_match(*tokens, 2, case2_tok3, case2_tok4)) {
             // CASE 2
-            // <address> has the form [Rn,<#expression>]
             p = 1;
-            rn = get_register_address(remove_square_brackets(tokens->string_array[2])); // WE NEED TO DISCARD "["
             u = get_value(&tokens->string_array[3][1]) >= 0;
             offset = abs(get_value(&tokens->string_array[3][1]));
         }
-        else if(all_tokens_match(*tokens, 4, case3_tok3, case3_tok4, case3_tok5, case3_tok6)) {
-            // CASE 3 optional
-            // <address> has the form [Rn, {+/-}Rm{,<shift>}] with shift
-            // [r1, r2, lsl #2]
-            sdt_shift_helper(tokens, &rs, &rm, &u, &i, &shift_type, &shift_amount, 3);
-            printf("rs = %d, rm = %d, u = %d, i = %d, shift_type = %d, shift_amount = %d\n",
-                rs, rm, u, i, shift_type, shift_amount);
+        else if(all_tokens_match(*tokens, 4, case3_tok3, case3_shift_tok4, case3_tok5, case3_tok6)) {
+            // CASE 3 with shift
+            p = 1;
+            sdt_shift_helper(tokens, &rs, &rm, &u, &i, &shift_type, &shift_amount);
         }
-        else if(all_tokens_match(*tokens, 2, case3_tok3, case3_tok4)) {
+        else if(all_tokens_match(*tokens, 2, case3_tok3, case3_noshift_tok4)) {
             // CASE 3 without shift
-            // <address> has the form [Rn, {+/-}Rm{,<shift>}] without shift
-            sdt_shift_helper(tokens, &rs, &rm, &u, &i, &shift_type, &shift_amount, 3);
+            p = 1;
+            sdt_shift_helper(tokens, &rs, &rm, &u, &i, &shift_type, &shift_amount);
         }
         else if(all_tokens_match(*tokens, 2, case4_tok3, case4_tok4)) {
             // CASE 4
-            // <address> has the form [Rn,<#expression>]
             offset = get_value(&tokens->string_array[3][1]);   
-            rn = get_register_address(remove_square_brackets(tokens->string_array[2])); // WE NEED TO DISCARD "["
-        }
-        else if(all_tokens_match(*tokens, 4, case5_tok3, case5_tok4, case5_tok5, case5_tok6)) {
-            // CASE 5 optional
-            // <address> has the form [Rn, {+/-}Rm{,<shift>}] with shift
-            rn = get_register_address(remove_square_brackets(tokens->string_array[2]));
-            sdt_shift_helper(tokens, &rs, &rm, &u, &i, &shift_type, &shift_amount, 4);
         }
         else if(all_tokens_match(*tokens, 2, case5_tok3, case5_tok4)) {
-            // CASE 5
-            // <address> has the form [Rn, {+/-}Rm{,<shift>}] without shift
-            rn = get_register_address(remove_square_brackets(tokens->string_array[2]));
-            sdt_shift_helper(tokens, &rs, &rm, &u, &i, &shift_type, &shift_amount, 4);
+            // CASE 5 without shift
+            sdt_shift_helper(tokens, &rs, &rm, &u, &i, &shift_type, &shift_amount);
+        }
+        else if(all_tokens_match(*tokens, 4, case5_tok3, case5_tok4, case5_tok5, case5_tok6)) {
+            // CASE 5 with shift
+            sdt_shift_helper(tokens, &rs, &rm, &u, &i, &shift_type, &shift_amount);
         }
         else {
             printf("Token matching failed.\n");
             assert(0);
         }
+        rn = get_register_address(remove_square_brackets(tokens->string_array[2]));
     } else {
         // <address> has the form <=expression>
         expression = get_value(&tokens->string_array[2][1]);
