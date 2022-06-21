@@ -1,9 +1,10 @@
-#ignore all files, then unignore files with extensions, directories, Makefiles
+#ignore all files, then unignore files with extensions, directories, Makefiles, Readmes
 #this has the result of ignoring binary files
 *
 !*.*
 !*/
 !Makefile
+!README
 *.bin
 
 #ignore junk files from compiling C code
