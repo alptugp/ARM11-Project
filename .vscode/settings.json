@@ -1,0 +1,9 @@
+{
+    "files.associations": {
+        "data_processing.h": "c",
+        "binary_writer.h": "c",
+        "utils.h": "c",
+        "unordered_map": "c"
+    },
+    "codetogether.virtualCursorJoin": "ownVirtualCursor"
+}
